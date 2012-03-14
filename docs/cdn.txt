@@ -1,0 +1,9 @@
+93.191.8.93
+20101
+
+Flash-плеер
+rtmp://kprf.cdnvideo.ru/rtp
+rtmp://live1.kprfmedia.com/rtp
+Stream: stream01
+
+Тестовый Flash-плеер: http://www.cdnvideo.ru/aloha/wowza-examples/LiveVideoStreaming/client/live.html

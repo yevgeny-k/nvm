@@ -1,0 +1,251 @@
+Рабоча схема
+Видео
+gst-launch -e  mmssrc location=mms://213.141.145.170/kprf_tv ! queue ! decodebin ! videoscale ! video/x-raw-yuv, width=426, height=240 ! x264enc byte-stream=true bitrate=200 tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true
+
+Звук
+gst-launch -e  mmssrc location=mms://213.141.145.170/kprf_tv ! queue ! decodebin ! queue ! audioconvert ! faac ! mpegtsmux ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true
+
+Лого
+gst-launch filesrc location="logo_for_stream.png" ! pngdec ! freeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv, width=426, height=224 ! autovideosink
+
+Общая 22 минуты
+gst-launch -ve mmssrc location=mms://213.141.145.170/kprf_tv ! queue ! decodebin name=d \
+! queue ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o. \
+d. ! queue ! videoscale ! video/x-raw-yuv, width=426, height=224 ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true
+
+
+Захват RTMP
+gst-launch -v rtmpsrc location='rtmp://kprf.cdnvideo.ru/rtp/stream01 live=1' ! queue ! decodebin ! autovideosink
+Захват RTP
+gst-launch -v udpsrc port=5000 ! rtpmp2tdepay ! decodebin ! autovideosink
+
+
+
+
+st-launch -v rtmpsrc location="rtmp://aloha.cdnvideo.ru/rtp/stream/politros2" ! rtpmp2tdepay ! mpegtsdemux ! decodebin ! autovideosink
+
+
+
+
+
+
+
+
+
+gst-launch filesrc location=video2.ogg ! decodebin ! x264enc ! video/x-h264 ! rtph264pay pt=96 ! udpsink port=5000 sync=false
+gst-launch udpsrc port=5000 ! rtph264depay ! decodebin ! autovideosink
+
+
+Execution ended after 1342810948829 ns.
+1424545655946
+New clock: GstSystemClock
+ERROR: from element /GstPipeline:pipeline0/GstMMS:mms0: Internal data flow error.
+Additional debug info:
+gstbasesrc.c(2582): gst_base_src_loop (): /GstPipeline:pipeline0/GstMMS:mms0:
+streaming task paused, reason not-linked (-1)
+Execution ended after 1424545655946 ns.
+
+
+gst-launch-0.10 -v udpsrc port=4444 \
+caps="application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264" \
+! .recv_rtp_sink_0 gstrtpbin ! rtpmp2tdepay \
+! mpegtsdemux ! fluh264dec ! xvimagesink
+
+
+gst-launch -e mmssrc location=mms://213.141.145.170/kprf_tv ! decodebin name=d \
+! queue ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o. \
+d. ! queue ! videoscale ! video/x-raw-yuv, width=426, height=224 ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true
+
+
+
+
+С ЛОГО на экран
+gst-launch videomixer name=mix sink_1::xpos=372 sink_1::ypos=2 ! ffmpegcolorspace ! autovideosink \
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale ! video/x-raw-rgb, width=50, height=50 ! ffmpegcolorspace !  mix. \
+mmssrc location="mms://213.141.145.170/kprf_tv" ! queue ! decodebin name=d ! audioconvert ! audioresample ! autoaudiosink \
+d. ! videoscale ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix.
+
+
+
+
+С ЛОГО трансляция Рассвет ТВ
+gst-launch videomixer name=mix sink_1::xpos=372 sink_1::ypos=2 ! ffmpegcolorspace ! queue ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true \
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale ! video/x-raw-rgb, width=50, height=50 ! ffmpegcolorspace !  mix. \
+mmssrc location="mms://213.141.145.170/kprf_tv" ! queue ! decodebin name=d ! queue ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o. \
+d. ! videoscale ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix.
+
+
+
+С ЛОГО трансляция POLITPROS
+gst-launch videomixer name=mix sink_1::xpos=372 sink_1::ypos=2 ! ffmpegcolorspace ! queue ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale ! video/x-raw-rgb, width=50, height=50 ! ffmpegcolorspace !  mix. rtmpsrc location="rtmp://aloha.cdnvideo.ru/rtp/stream/politros2" ! decodebin name=d ! queue ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o. d. ! videoscale ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix.
+
+
+gst-launch videomixer name=mix sink_1::xpos=372 sink_1::ypos=2 ! ffmpegcolorspace ! queue ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! 
+
+
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale ! video/x-raw-rgb, width=50, height=50 ! ffmpegcolorspace !  mix. \
+rtmpsrc location="rtmp://aloha.cdnvideo.ru/rtp/stream/politros2" ! decodebin name=d ! queue ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o. \
+d. ! videoscale ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix.
+
+
+
+
+TECH pipeline
+gst-launch videotestsrc ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true \
+audiotestsrc ! volume volume=0.3 ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o.
+
+
+VIDEO pipeline
+gst-launch videomixer name=mix sink_1::xpos=372 sink_1::ypos=2 ! ffmpegcolorspace ! queue ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true \
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale ! video/x-raw-rgb, width=50, height=50 ! ffmpegcolorspace !  mix. \
+videotestsrc ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix. \
+audiotestsrc ! volume volume=0.5 ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! o.
+
+
+
+
+МИКШЕР
+gst-launch filesrc location=video1.ogg ! decodebin ! ffmpegcolorspace !  videoscale ! video/x-raw-yuv,width=320  ! videomixer name=mix ! ffmpegcolorspace ! autovideosink videotestsrc !  videoscale ! video/x-raw-yuv, width=640 ! mix.
+
+
+
+
+
+
+
+
+
+gst-launch -e videomixer name=mix ! autovideosink \
+mmssrc location="mms://213.141.145.170/kprf_tv" ! queue ! decodebin ! videoscale ! video/x-raw-yuv, width=426, height=240 ! ffmpegcolorspace ! mix. \
+filesrc location="logo_for_stream.png" ! pngdec ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv, width=100, height=100 ! videobox border-alpha=0 top=10 left=10 ! mix.
+
+
+
+
+gst-launch videomixer name=mix sink_1::xpos=300 ! ffmpegcolorspace ! autovideosink \
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=1/1" ! pngdec ! videoscale !  \
+ffmpegcolorspace !  mix. \
+filesrc location="video2.ogg" ! decodebin ! ffmpegcolorspace ! mix.
+
+
+
+
+
+
+
+
+
+
+
+
+gst-launch -e  mmssrc location=mms://213.141.145.170/kprf_tv ! queue ! decodebin ! videoscale ! video/x-raw-yuv, width=426, height=240 ! autovideosink sync=true
+
+
+
+
+Лого
+gst-launch filesrc location="logo_for_stream.png" ! pngdec ! freeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv, width=426, height=224 ! autovideosink
+
+
+gst-launch filesrc location="logo_for_stream.png" ! pngdec ! ffmpegcolorspace ! freeze ! ffmpegcolorspace ! autovideosink
+
+
+gst-launch v4l2src device=/dev/video0 ! \
+'video/x-raw-yuv,width=386,height=386,framerate=30/1' ! ffmpegcolorspace  ! \
+videomixer name=mix !  ffmpegcolorspace  ! xvimagesink filesrc location="logo_for_stream.png" ! pngdec ! \
+ffmpegcolorspace ! 'video/x-raw-yuv,format=(fourcc)AYUV,width=386,height=386,framerate=30/1'  ! freeze  ! .mix
+
+
+ТТЕСТ ЛОГО
+gst-launch -vvv videomixer name=mix ! ffmpegcolorspace ! autovideosink \
+multifilesrc location="logo_for_stream.png" caps="image/png,framerate=30/1" ! pngdec ! alphacolor ! videoscale ! 'video/x-raw-yuv,format=(fourcc)AYUV,width=30,height=30' ! mix. \
+videotestsrc ! 'video/x-raw-yuv,format=(fourcc)AYUV' ! mix.
+
+
+
+gst-launch -vvv filesrc location='video3.wmv' ! decodebin ! ffmpegcolorspace ! videoscale ! 'video/x-raw-yuv,format=(fourcc)UYVY, width=426' ! autovideosink
+
+
+
+ТЕСТ производительности
+gst-launch videotestsrc is-live=true ! 'video/x-raw-yuv,format=(fourcc)AYUV,width=320,height=240,framerate=30/1' ! clockoverlay 'font-desc="Sans 25"' ! ffmpegcolorspace ! x264enc byte-stream=true bitrate=224 tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true 
+
+
+
+
+AUDIO
+gst-launch -ve audiotestsrc ! audioconvert  ! audioresample ! audio/x-raw-int,width=16,rate=22050,channels=1,depth=16 ! faac bitrate=32768 ! mpegtsmux ! rtpmp2tpay ! udpsink host=93.191.8.93 port=20101 sync=true
+
+
+
+
+
+
+
+
+
+
+
+Рабочая 1
+gst-launch audiotestsrc ! volume volume=0.1 ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=2 ! interaudiosink sync=true interaudiosrc do-timestamp=true ! audio/x-raw-int,rate=44100,channels=2 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! lame  bitrate=32 ! mpegtsmux name=o ! rtpmp2tpay ! identity ! udpsink host="93.191.8.93" port=20101 sync=true videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! clockoverlay halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! queue ! identity sync=true ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o.
+
+
+gst-launch videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! clockoverlay halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! queue ! identity sync=true ! queue ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux name=o ! rtpmp2tpay ! identity ! udpsink host="93.191.8.93" port=20101 sync=true \
+multifilesrc location="/home/evgeniy/dev/nvm/wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)30/1" !  pngdec ! alphacolor ! queue ! v.
+
+
+gst-launch multifilesrc location="/home/evgeniy/dev/nvm/wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)30/1" !  pngdec ! alphacolor ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! queue ! videomixer name=v ! ffmpegcolorspace ! autovideosink \
+videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420 ! clockoverlay halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true  \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420 ! queue ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! v.
+
+Рабочая 2
+gst-launch multifilesrc location="/home/evgeniy/dev/nvm/wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)30/1" !  pngdec ! alphacolor ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! queue ! videomixer name=v ! ffmpegcolorspace ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
+videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420 ! clockoverlay font-desc="Sans 21" halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true  \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420 ! queue ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! v.
+
+Рабочая 3
+gst-launch \
+audiotestsrc ! volume volume=0.1 ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=2 ! interaudiosink sync=true \
+interaudiosrc do-timestamp=true ! audio/x-raw-int,rate=44100,channels=2 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! lame  bitrate=32 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
+multifilesrc location="/home/evgeniy/dev/nvm/wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)30/1" !  pngdec ! alphacolor ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! queue ! videomixer name=v ! ffmpegcolorspace ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
+videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420 ! clockoverlay font-desc="Sans 21" halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true  \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420 ! queue ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! v.
+
+Рабочая 4
+gst-launch \
+audiotestsrc ! volume volume=0.1 ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=2 ! interaudiosink sync=true \
+interaudiosrc do-timestamp=true ! audio/x-raw-int,rate=44100,channels=2 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! lame  bitrate=32 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
+multifilesrc location="/home/evgeniy/dev/nvm/wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)30/1" !  pngdec ! alphacolor ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! queue ! videomixer name=v ! ffmpegcolorspace ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
+videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720 ! clockoverlay font-desc="Sans 21" halign=right valign=top deltax=10 deltay=100 time-format="%d %B %Y %H:%M:%S" ! intervideosink sync=true  \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720  ! queue ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! v.
+
+
+
+
+gst-launch videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720 ! clockoverlay font-desc="Sans 21" ! intervideosink sync=true \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720  ! identity ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! ffmpegcolorspace ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+
+
+gst-launch videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=854,height=480 ! clockoverlay font-desc="Sans 21" ! intervideosink sync=true \
+intervideosrc do-timestamp=true ! video/x-raw-yuv,format=\(fourcc\)I420,width=854,height=480  ! identity ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! ffmpegcolorspace ! x264enc threads=4 bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+Рабочая 5
+gst-launch \
+audiotestsrc ! volume volume=0.1 ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=1 ! interaudiosink sync=true \
+interaudiosrc do-timestamp=true ! audio/x-raw-int,rate=44100,channels=1 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! faac  bitrate=32768 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true 
+
+
+
+gst-launch filesrc location="video2.ogg" ! decodebin ! queue ! videoscale ! videorate ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! intervideosink sync=true \
+intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! x264enc threads=4 bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+
+
+
+
+
+
