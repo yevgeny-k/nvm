@@ -4,21 +4,24 @@ OBJDIR=obj
 BINDIR=bin
 CC=g++
 CFLAGS=-O3 `pkg-config --cflags gstreamer-0.10`
-LDFLAGS=`pkg-config --libs gstreamer-0.10` `pkg-config --libs libxml++-2.6`
+LDFLAGS=`pkg-config --libs gstreamer-0.10` `pkg-config --libs libxml++-2.6` `pkg-config --libs gthread-2.0`
 
 
-$(TARGET) : createdirs serverout techsplash core
-	$(CC) $(LDFLAGS) -o $(ROOT)/bin/$(TARGET) $(ROOT)/obj/moduleclass.o $(ROOT)/obj/techsplash.o $(ROOT)/obj/serverout.o $(ROOT)/obj/main.o
+$(TARGET) : createdirs serverout techsplash manager core
+	$(CC) $(LDFLAGS) -o $(ROOT)/bin/$(TARGET) $(ROOT)/obj/moduleclass.o $(ROOT)/obj/techsplash.o $(ROOT)/obj/serverout.o $(ROOT)/obj/manager.o $(ROOT)/obj/main.o
 
 core : 
-	$(CC) $(CFLAGS) `pkg-config --cflags libxml++-2.6` -c $(ROOT)/src/main.cpp -o $(ROOT)/obj/main.o
+	$(CC) $(CFLAGS) `pkg-config --cflags libxml++-2.6` `pkg-config --cflags gthread-2.0` -c $(ROOT)/src/main.cpp -o $(ROOT)/obj/main.o
 
 techsplash : moduleclass
 	$(CC) $(CFLAGS) -c $(ROOT)/src/techsplash.cpp -o $(ROOT)/obj/techsplash.o
 
 serverout :
 	$(CC) $(CFLAGS) -c $(ROOT)/src/serverout.cpp -o $(ROOT)/obj/serverout.o
-		     
+	
+manager :
+	$(CC) $(CFLAGS) -c $(ROOT)/src/manager.cpp -o $(ROOT)/obj/manager.o
+			     
 moduleclass :
 	$(CC) $(CFLAGS) -c $(ROOT)/src/moduleclass.cpp -o $(ROOT)/obj/moduleclass.o
 

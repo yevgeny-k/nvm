@@ -13,10 +13,12 @@
 #include <libxml++/libxml++.h>
 #include <libxml++/parsers/textreader.h>
 #include <iostream>
+#include <pthread.h>
 #include "core.h"
 #include "moduleclass.h"
 #include "serverout.h"
 #include "techsplash.h"
+#include "manager.h"
 
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);
@@ -26,6 +28,9 @@ GMainLoop *mainloop = NULL;
 int main (int argc, char * argv[])
 {
   Scfg *cfg;
+  pthread_t mngserver;
+  int  mngserverret;
+  
   CNVM_Techsplash *techsplash;
   CNVM_Serverout *server;
   
@@ -36,7 +41,7 @@ int main (int argc, char * argv[])
   
   if (!cfg) {
      fprintf(stderr, "Error: Can not loading configure file! Exit.\n");
-     exit(1);
+     exit (EXIT_FAILURE);
   }
   
   
@@ -44,10 +49,19 @@ int main (int argc, char * argv[])
   techsplash = new CNVM_Techsplash (cfg);
   fprintf (stdout, "OK\n");
   printConfig (cfg);   
-      
-  fprintf(stdout, "Play\n");
+  
+  fprintf(stdout, "Start manager server...");
+  mngserverret = pthread_create( &mngserver, NULL, managerserver, cfg);
+  /*fprintf(stdout, "%d", mngserverret);
+  if (!mngserverret) {
+     fprintf(stderr, "Error: Can not start manager server! Exit.\n");
+     exit(1);
+  }*/
+  fprintf (stdout, "OK\n");
+  
+  /*fprintf(stdout, "Play\n");
   server->play ();
-  techsplash->play ();
+  techsplash->play ();*/
   
   g_main_loop_run (mainloop);
   
@@ -58,7 +72,7 @@ int main (int argc, char * argv[])
     delete cfg;
   fprintf(stdout, "OK\n");
   fprintf(stdout, "End.\n");
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 Scfg * loadConfig(char *p)
@@ -78,6 +92,13 @@ Scfg * loadConfig(char *p)
           } while(reader.move_to_next_attribute());
       reader.move_to_element(); }  }
 
+      if (!strcmp ("socket", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+          do { attributename = reader.get_name().c_str();
+            if (!strcmp ("path", attributename)) { strcpy (cfg->socketpath, reader.get_value().c_str()); }
+            if (!strcmp ("port", attributename)) { cfg->socketport = atoi(reader.get_value().c_str()); }
+          } while(reader.move_to_next_attribute());
+      reader.move_to_element(); }  }      
+      
       if (!strcmp ("cdnserver", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
             if (!strcmp ("ip", attributename)) { strcpy (cfg->CDNserverIP, reader.get_value().c_str()); }

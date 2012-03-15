@@ -13,6 +13,8 @@ struct Scfg {
   int CDNserverPort;
   
   char wfilepath[400];
+  char socketpath[400];
+  int socketport;
   
   Scodep production;
   Scodep streamingLOW;
