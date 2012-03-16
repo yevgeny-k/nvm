@@ -15,6 +15,9 @@ void * managerserver (void *ptr)
   cfg = (Scfg *) ptr;
   int sockfd;
   struct sockaddr_in addr;
+  int client;
+  char buffer[1024];
+  char *reply = "{\"result\": \"ok\"}\n";  
   
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
@@ -40,20 +43,17 @@ void * managerserver (void *ptr)
   
   while (1)
   {
-    int client;
     socklen_t size = sizeof(addr);
     
     client = accept(sockfd, (struct sockaddr *)&addr, &size);
     if (client > 0)
     {
-      char buffer[1024];
-      char *reply = "<html><body>Hello!</body></html>\n";
       memset(buffer, 0, sizeof(buffer));
       
       recv (client, buffer, sizeof(buffer), 0);
       send (client, reply, strlen(reply), 0);
       
-      fprintf(stderr, "%s", buffer);
+      fprintf(stdout, "%s", buffer);
       close(client);
     }
   }

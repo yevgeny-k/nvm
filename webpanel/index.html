@@ -1,0 +1,41 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>(beta) Панель управления видеомикшером</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
+
+  <script type="text/javascript">
+  $(document).ready(function(){
+    $("#mainpipeline").click(function(){
+      $.ajax( {url: "manager", 
+        type: "POST",
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader("NVM-Command", "play");
+          xhr.setRequestHeader("NVM-Data", "encodepipeline");
+        },
+        success: function(data) {           
+          $("#msgout").html(data.result);
+        }
+        });
+    });
+    $("#techpipeline").click(function(){
+      $(this).fadeOut();
+    });
+    $("#videoplayerpipeline").click(function(){
+      $(this).fadeOut();
+    });
+    $("#chng").click(function(){
+      $(this).fadeOut();
+    });
+  });
+  </script>
+</head>
+<body>
+<p><input type="button" value="Включить кодинг" id="mainpipeline" /></p>
+<p><input type="button" value="Запустить заставку" id="techpipeline" /></p>
+<p><input type="button" value="Запустить видео" id="videoplayerpipeline" /></p>
+<p><input type="button" value="Переключить" id="chng" /></p>
+<p id="msgout"></p>
+</body>
+</html>

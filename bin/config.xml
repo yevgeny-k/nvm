@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
   <cdnserver ip="93.191.8.93" port="20101" />
-  <wfile path="/root/dev/nvm/wfiles" />
+  <wfile path="/homw/dev/nvm/wfiles" />
   <socket path="/tmp/nvm" port="43001" />
   <codeparams>
     <codeparam width="426" height="240" framerate="25" audiorate="44100" audiochannels="2" videoencbitrate="0" audioencbitrate="0" usefor="production" />

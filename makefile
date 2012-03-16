@@ -1,5 +1,5 @@
 TARGET=nvm
-ROOT=/root/dev/nvm
+ROOT=/home/dev/nvm
 OBJDIR=obj
 BINDIR=bin
 CC=g++
