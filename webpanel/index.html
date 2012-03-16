@@ -12,7 +12,8 @@
         dataType: 'json',
         beforeSend: function(xhr) {
           xhr.setRequestHeader("NVM-Command", "play");
-          xhr.setRequestHeader("NVM-Data", "encodepipeline");
+          xhr.setRequestHeader("NVM-Object", "encodepipeline");
+          xhr.setRequestHeader("NVM-Data", "");
         },
         success: function(data) {           
           $("#msgout").html(data.result);
@@ -28,6 +29,20 @@
     $("#chng").click(function(){
       $(this).fadeOut();
     });
+    $("#shutdown").click(function(){
+      $.ajax( {url: "manager", 
+        type: "POST",
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader("NVM-Command", "shutdown");
+          xhr.setRequestHeader("NVM-Object", "server");
+          xhr.setRequestHeader("NVM-Data", "");
+        },
+        success: function(data) {           
+          $("#msgout").html(data.result);
+        }
+        });
+    });
   });
   </script>
 </head>
@@ -36,6 +51,7 @@
 <p><input type="button" value="Запустить заставку" id="techpipeline" /></p>
 <p><input type="button" value="Запустить видео" id="videoplayerpipeline" /></p>
 <p><input type="button" value="Переключить" id="chng" /></p>
+<p><input type="button" value="Остановить микшер" id="shutdown" /></p>
 <p id="msgout"></p>
 </body>
 </html>

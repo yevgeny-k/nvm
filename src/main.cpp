@@ -23,10 +23,9 @@
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);
 
-GMainLoop *mainloop = NULL;
-
 int main (int argc, char * argv[])
 {
+  GMainLoop *mainloop = NULL;
   Scfg *cfg;
   pthread_t mngserver;
   int  mngserverret;
@@ -34,13 +33,17 @@ int main (int argc, char * argv[])
   CNVM_Techsplash *techsplash;
   CNVM_Serverout *server;
   
-  fprintf(stdout, "Start...");  
+  mngdata md;
+  
+  fprintf (stdout, "Start...");  
+  fflush (stdout);
   gst_init (&argc, &argv);  
   mainloop = g_main_loop_new (NULL, TRUE);
   cfg = loadConfig("/home/dev/nvm/bin/config.xml");
   
   if (!cfg) {
      fprintf(stderr, "Error: Can not loading configure file! Exit.\n");
+     fflush (stderr);
      exit (EXIT_FAILURE);
   }
   
@@ -48,16 +51,21 @@ int main (int argc, char * argv[])
   server = new CNVM_Serverout (cfg);
   techsplash = new CNVM_Techsplash (cfg);
   fprintf (stdout, "OK\n");
+  fflush (stdout);
   printConfig (cfg);   
   
-  fprintf(stdout, "Start manager server...");
-  mngserverret = pthread_create( &mngserver, NULL, managerserver, cfg);
+  md.mainloop = mainloop;
+  md.cfg = cfg;
+  fprintf (stdout, "Start manager server...");
+  fflush (stdout);
+  mngserverret = pthread_create (&mngserver, NULL, managerserver, &md);
   /*fprintf(stdout, "%d", mngserverret);
   if (!mngserverret) {
      fprintf(stderr, "Error: Can not start manager server! Exit.\n");
      exit(1);
   }*/
   fprintf (stdout, "OK\n");
+  fflush (stdout);
   
   /*fprintf(stdout, "Play\n");
   server->play ();
@@ -66,12 +74,14 @@ int main (int argc, char * argv[])
   g_main_loop_run (mainloop);
   
   
-  fprintf(stdout, "Free...");
+  fprintf (stdout, "Free...");
+  fflush (stdout);
     delete techsplash;
     delete server;
     delete cfg;
-  fprintf(stdout, "OK\n");
-  fprintf(stdout, "End.\n");
+  fprintf (stdout, "OK\n");
+  fprintf (stdout, "End.\n");
+  fflush (stdout);
   exit (EXIT_SUCCESS);
 }
 
@@ -145,27 +155,28 @@ Scfg * loadConfig(char *p)
 
 void printConfig(Scfg *cfg)
 {
-  fprintf(stdout, "******************** Configure ********************\n");
-  fprintf(stdout, "WFiles path: \t%s\n", cfg->wfilepath);
-  fprintf(stdout, "CDN Server paramerts\n");
-  fprintf(stdout, "  IP: \t\t%s\n", cfg->CDNserverIP);
-  fprintf(stdout, "  Port: \t%d\n", cfg->CDNserverPort);
-  fprintf(stdout, "Production encoding paramerts\n");
-  fprintf(stdout, "  Width: \t%d\n", cfg->production.width);
-  fprintf(stdout, "  Height: \t%d\n", cfg->production.height);
-  fprintf(stdout, "  Framerate: \t%d\n", cfg->production.framerate);
-  fprintf(stdout, "  Audio rate: \t%d\n", cfg->production.audiorate);
-  fprintf(stdout, "  Audio channels: \t%d\n", cfg->production.audiochannels);
-  fprintf(stdout, "  Vbitrate: \t%d\n", cfg->production.videoencbitrate);
-  fprintf(stdout, "  Abitrate: \t%d\n", cfg->production.audioencbitrate);             
-  fprintf(stdout, "Low quality streaming encoding paramerts\n");
-  fprintf(stdout, "  Width: \t%d\n", cfg->streamingLOW.width);
-  fprintf(stdout, "  Height: \t%d\n", cfg->streamingLOW.height);
-  fprintf(stdout, "  Framerate: \t%d\n", cfg->streamingLOW.framerate);
-  fprintf(stdout, "  Audio rate: \t%d\n", cfg->streamingLOW.audiorate);
-  fprintf(stdout, "  Audio channels: \t%d\n", cfg->streamingLOW.audiochannels);
-  fprintf(stdout, "  Vbitrate: \t%d\n", cfg->streamingLOW.videoencbitrate);
-  fprintf(stdout, "  Abitrate: \t%d\n", cfg->streamingLOW.audioencbitrate); 
-  fprintf(stdout, "***************************************************\n");
+  fprintf (stdout, "******************** Configure ********************\n");
+  fprintf (stdout, "WFiles path: \t%s\n", cfg->wfilepath);
+  fprintf (stdout, "CDN Server paramerts\n");
+  fprintf (stdout, "  IP: \t\t%s\n", cfg->CDNserverIP);
+  fprintf (stdout, "  Port: \t%d\n", cfg->CDNserverPort);
+  fprintf (stdout, "Production encoding paramerts\n");
+  fprintf (stdout, "  Width: \t%d\n", cfg->production.width);
+  fprintf (stdout, "  Height: \t%d\n", cfg->production.height);
+  fprintf (stdout, "  Framerate: \t%d\n", cfg->production.framerate);
+  fprintf (stdout, "  Audio rate: \t%d\n", cfg->production.audiorate);
+  fprintf (stdout, "  Audio channels: \t%d\n", cfg->production.audiochannels);
+  fprintf (stdout, "  Vbitrate: \t%d\n", cfg->production.videoencbitrate);
+  fprintf (stdout, "  Abitrate: \t%d\n", cfg->production.audioencbitrate);             
+  fprintf (stdout, "Low quality streaming encoding paramerts\n");
+  fprintf (stdout, "  Width: \t%d\n", cfg->streamingLOW.width);
+  fprintf (stdout, "  Height: \t%d\n", cfg->streamingLOW.height);
+  fprintf (stdout, "  Framerate: \t%d\n", cfg->streamingLOW.framerate);
+  fprintf (stdout, "  Audio rate: \t%d\n", cfg->streamingLOW.audiorate);
+  fprintf (stdout, "  Audio channels: \t%d\n", cfg->streamingLOW.audiochannels);
+  fprintf (stdout, "  Vbitrate: \t%d\n", cfg->streamingLOW.videoencbitrate);
+  fprintf (stdout, "  Abitrate: \t%d\n", cfg->streamingLOW.audioencbitrate); 
+  fprintf (stdout, "***************************************************\n");
+  fflush (stdout);
 }
 

@@ -4,7 +4,7 @@ OBJDIR=obj
 BINDIR=bin
 CC=g++
 CFLAGS=-O3 `pkg-config --cflags gstreamer-0.10`
-LDFLAGS=`pkg-config --libs gstreamer-0.10` `pkg-config --libs libxml++-2.6` `pkg-config --libs gthread-2.0`
+LDFLAGS=`pkg-config --libs gstreamer-0.10` `pkg-config --libs libxml++-2.6` `pkg-config --libs gthread-2.0` `pkg-config --libs libpcrecpp`
 
 
 $(TARGET) : createdirs serverout techsplash manager core
@@ -20,7 +20,7 @@ serverout :
 	$(CC) $(CFLAGS) -c $(ROOT)/src/serverout.cpp -o $(ROOT)/obj/serverout.o
 	
 manager :
-	$(CC) $(CFLAGS) -c $(ROOT)/src/manager.cpp -o $(ROOT)/obj/manager.o
+	$(CC) $(CFLAGS) `pkg-config --cflags libpcrecpp` -c $(ROOT)/src/manager.cpp -o $(ROOT)/obj/manager.o
 			     
 moduleclass :
 	$(CC) $(CFLAGS) -c $(ROOT)/src/moduleclass.cpp -o $(ROOT)/obj/moduleclass.o
