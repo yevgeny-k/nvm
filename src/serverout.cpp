@@ -31,7 +31,7 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
                                               NULL), NULL);
   videoqueue              = gst_element_factory_make ("queue", "videoqueue");
   intercapsidentity       = gst_element_factory_make ("identity", "intercapsidentity");
-    //g_object_set (G_OBJECT (intercapsidentity), "sync", TRUE, NULL);
+    g_object_set (G_OBJECT (intercapsidentity), "sync", TRUE, NULL);
   ffmpegcolorspace        = gst_element_factory_make ("ffmpegcolorspace", "ffmpegcolorspace");
   mixcapsin               = gst_element_factory_make ("capsfilter", "mixcapsin");
 
@@ -63,8 +63,8 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
                                                "depth", G_TYPE_INT, 16,
                                                 NULL), NULL);
   audioqueue = gst_element_factory_make ("queue", "audioqueue");
-  audiointercapsidentity       = gst_element_factory_make ("audiorate", "audiointercapsidentity");
-    //g_object_set (G_OBJECT (audiointercapsidentity), "sync", TRUE, NULL);
+  audiointercapsidentity       = gst_element_factory_make ("identity", "audiointercapsidentity");
+    g_object_set (G_OBJECT (audiointercapsidentity), "sync", TRUE, NULL);
   audioconvertENC      = gst_element_factory_make ("audioconvert", "audioconvertENC");
   audioresampleENC      = gst_element_factory_make ("audioresample", "audioresampleENC");
   faac                  = gst_element_factory_make ("lame", "lame");

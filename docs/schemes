@@ -239,8 +239,8 @@ interaudiosrc do-timestamp=true ! audio/x-raw-int,rate=44100,channels=1 ! queue 
 
 
 
-gst-launch filesrc location="video2.ogg" ! decodebin ! queue ! videoscale ! videorate ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! intervideosink sync=true \
-intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)30/1 ! x264enc threads=4 bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+gst-launch filesrc location="video2.ogg" ! decodebin name=de ! identity ! queue ! videoscale ! videorate ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)25/1 ! intervideosink sync=true \
+intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)25/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
 
 
 

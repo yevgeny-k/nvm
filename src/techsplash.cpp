@@ -75,7 +75,7 @@ CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
   gst_element_link_filtered (videoscale, intervideosink, vcaps);
   gst_element_link_many (audiotestsrc, testvolume, audioconvert, audioresample, NULL);
   gst_element_link_filtered (audioresample, interaudiosink, acaps);
-  
+
   // Удаляем капсы
   gst_caps_unref (acaps);
   gst_caps_unref (vcaps);  

@@ -1,10 +1,16 @@
+struct newpads {
+  GstElement *v, *a;  
+};
+
 class CNVM_Videoplayer: public CNVM_Module {
   private:
     GstElement *videoplayerpipeline;
-    //GstElement *videotestsrc, *clocktext, *textmesg, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;
-    //GstElement *audiotestsrc, *testvolume, *audioconvert, *audioresample, *interaudiosink;
+    GstElement *filesrc, *decodebin, *seg_video, *videoqueue, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;
+    GstElement *seg_audio, *audioqueue, *audioconvert, *audioresample, *interaudiosink;
     
-    //GstCaps *vcaps, *acaps;
+    newpads av;
+    GstCaps *vcaps, *acaps;
+    static void cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data);
   public:
     CNVM_Videoplayer (Scfg *cfg);
     ~CNVM_Videoplayer ();
