@@ -8,8 +8,8 @@
  */
  
 #include <gst/gst.h>
-#include "core.h"
-#include "serverout.h"
+#include "core.hpp"
+#include "serverout.hpp"
 
 CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
 {

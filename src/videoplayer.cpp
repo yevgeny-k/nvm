@@ -10,9 +10,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <gst/gst.h>
-#include "core.h"
-#include "moduleclass.h"
-#include "videoplayer.h"
+#include "core.hpp"
+#include "moduleclass.hpp"
+#include "videoplayer.hpp"
 
 CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
 {

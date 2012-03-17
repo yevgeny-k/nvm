@@ -9,7 +9,7 @@
  
 #include <string.h>
 #include <stdio.h>
-#include "moduleclass.h"
+#include "moduleclass.hpp"
 
 CNVM_Module::CNVM_Module ()
 {

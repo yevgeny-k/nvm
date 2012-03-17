@@ -14,12 +14,12 @@
 #include <libxml++/parsers/textreader.h>
 #include <iostream>
 #include <pthread.h>
-#include "core.h"
-#include "moduleclass.h"
-#include "serverout.h"
-#include "videoplayer.h"
-#include "techsplash.h"
-#include "manager.h"
+#include "core.hpp"
+#include "moduleclass.hpp"
+#include "serverout.hpp"
+#include "videoplayer.hpp"
+#include "techsplash.hpp"
+#include "manager.hpp"
 
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);

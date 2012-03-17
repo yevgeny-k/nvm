@@ -8,10 +8,10 @@
 #include <arpa/inet.h>
 #include <pcrecpp.h>
 #include <gst/gst.h>
-#include "core.h"
-#include "moduleclass.h"
-#include "serverout.h"
-#include "manager.h"
+#include "core.hpp"
+#include "moduleclass.hpp"
+#include "serverout.hpp"
+#include "manager.hpp"
 
 mngdata *md = NULL;
 

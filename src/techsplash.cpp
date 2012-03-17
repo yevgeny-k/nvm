@@ -10,9 +10,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <gst/gst.h>
-#include "core.h"
-#include "moduleclass.h"
-#include "techsplash.h"
+#include "core.hpp"
+#include "moduleclass.hpp"
+#include "techsplash.hpp"
 
 CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
 {
