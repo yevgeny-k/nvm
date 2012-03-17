@@ -9,6 +9,8 @@
 #include <pcrecpp.h>
 #include <gst/gst.h>
 #include "core.h"
+#include "moduleclass.h"
+#include "serverout.h"
 #include "manager.h"
 
 mngdata *md = NULL;
@@ -17,8 +19,32 @@ bool wrk (httpcmd *cmd, char *reply)
 {
   memset(reply, 0, sizeof(reply));
   
-  fprintf(stdout, "Cmd: %s\n", cmd->command);
-  //char *reply = "{\"result\": \"ok\"}\n";
+  fprintf(stdout, "CMD: %s -> OBJ: %s\n", cmd->command, cmd->object);
+  
+  if        (!strcmp(cmd->command, "shutdown")) {
+    g_main_loop_quit (md->mainloop);
+    strcpy (reply, "{\"result\": \"ok\"}\n");
+  } else if (!strcmp(cmd->command, "play")) {
+    if        (!strcmp(cmd->object, "encodepipeline")) {
+      md->enc->play ();
+    } else if (!strcmp(cmd->object, "techpipeline")) {
+      md->tech->play ();
+    } else if (!strcmp(cmd->object, "videoplayer")) {
+      md->player->play ();
+    }
+    strcpy (reply, "{\"result\": \"ok\"}\n");
+  } else if (!strcmp(cmd->command, "pause")) {
+    if        (!strcmp(cmd->object, "techpipeline")) {
+      md->tech->pause ();
+    } else if (!strcmp(cmd->object, "videoplayer")) {
+      md->player->pause ();
+    }
+    strcpy (reply, "{\"result\": \"ok\"}\n");  
+  } else if (!strcmp(cmd->command, "stop")) {
+  
+  
+  }
+  return true;
 }
 
 void * managerserver (void *ptr)
@@ -68,7 +94,7 @@ void * managerserver (void *ptr)
       
       recv (client, buffer, sizeof(buffer), 0);
       if (parsecmd (&cmd, buffer)) {
-        if (!strcmp(cmd.command, "shutdown") && !strcmp(cmd.object, "server") ) { loopw = false; g_main_loop_quit (md->mainloop);}
+        if (!strcmp(cmd.command, "shutdown") && !strcmp(cmd.object, "server") ) { loopw = false; }
         wrk(&cmd, reply);
       } else {
         strcpy (reply, "{\"result\": \"error\"}\n");

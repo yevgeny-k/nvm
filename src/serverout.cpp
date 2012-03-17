@@ -151,9 +151,13 @@ CNVM_Serverout::~CNVM_Serverout()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_NULL);
   gst_object_unref (GST_BIN (mainpipeline));
+  fprintf(stdout, "Encoding server destroy.\n");
+  fflush (stdout);
 }
 
 void CNVM_Serverout::play ()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_PLAYING);
+  fprintf(stdout, "Encoding server is played.\n");
+  fflush (stdout);
 }

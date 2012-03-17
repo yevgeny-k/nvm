@@ -85,14 +85,20 @@ CNVM_Techsplash::~CNVM_Techsplash ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (techsplashpipeline));
+  fprintf(stdout, "Tesh splash module destroy.\n");
+  fflush (stdout);
 }
 
 void CNVM_Techsplash::play ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_PLAYING);
+  fprintf(stdout, "Tesh splash module is played.\n");
+  fflush (stdout);
 }
 
 void CNVM_Techsplash::pause ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_READY);
+  fprintf(stdout, "Tesh splash module paused.\n");
+  fflush (stdout);
 }

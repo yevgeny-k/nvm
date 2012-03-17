@@ -17,6 +17,7 @@
 #include "core.h"
 #include "moduleclass.h"
 #include "serverout.h"
+#include "videoplayer.h"
 #include "techsplash.h"
 #include "manager.h"
 
@@ -31,6 +32,7 @@ int main (int argc, char * argv[])
   int  mngserverret;
   
   CNVM_Techsplash *techsplash;
+  CNVM_Videoplayer *player;
   CNVM_Serverout *server;
   
   mngdata md;
@@ -50,12 +52,17 @@ int main (int argc, char * argv[])
   
   server = new CNVM_Serverout (cfg);
   techsplash = new CNVM_Techsplash (cfg);
+  player = new CNVM_Videoplayer (cfg);
+  
   fprintf (stdout, "OK\n");
   fflush (stdout);
   printConfig (cfg);   
   
   md.mainloop = mainloop;
   md.cfg = cfg;
+  md.enc = server;
+  md.tech = techsplash;
+  md.player = player;
   fprintf (stdout, "Start manager server...");
   fflush (stdout);
   mngserverret = pthread_create (&mngserver, NULL, managerserver, &md);
@@ -74,8 +81,9 @@ int main (int argc, char * argv[])
   g_main_loop_run (mainloop);
   
   
-  fprintf (stdout, "Free...");
+  fprintf (stdout, "Free...\n");
   fflush (stdout);
+    delete player;
     delete techsplash;
     delete server;
     delete cfg;

@@ -5,6 +5,9 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
 
   <script type="text/javascript">
+  tech = false;
+  player = false;
+  
   $(document).ready(function(){
     $("#mainpipeline").click(function(){
       $.ajax( {url: "manager", 
@@ -17,14 +20,53 @@
         },
         success: function(data) {           
           $("#msgout").html(data.result);
+          //$(this).fadeOut();
         }
         });
     });
     $("#techpipeline").click(function(){
-      $(this).fadeOut();
+      if (tech) {
+        $(this).val("Запустить заставку");
+      } else {
+        $(this).val("Остановить заставку");
+      }
+      tech = ! tech;
+      
+      $.ajax( {url: "manager", 
+        type: "POST",
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          if (tech) { xhr.setRequestHeader("NVM-Command", "play"); }
+          else      { xhr.setRequestHeader("NVM-Command", "pause"); }
+          xhr.setRequestHeader("NVM-Object", "techpipeline");
+          xhr.setRequestHeader("NVM-Data", "");
+        },
+        success: function(data) {           
+          $("#msgout").html(data.result);
+        }
+        });
     });
     $("#videoplayerpipeline").click(function(){
-      $(this).fadeOut();
+      if (player) {
+        $(this).val("Запустить видео");
+      } else {
+        $(this).val("Остановить видео");
+      }
+      player = ! player;
+      
+      $.ajax( {url: "manager", 
+        type: "POST",
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          if (player) { xhr.setRequestHeader("NVM-Command", "play"); }
+          else        { xhr.setRequestHeader("NVM-Command", "pause"); }
+          xhr.setRequestHeader("NVM-Object", "videoplayer");
+          xhr.setRequestHeader("NVM-Data", "");
+        },
+        success: function(data) {           
+          $("#msgout").html(data.result);
+        }
+        });
     });
     $("#chng").click(function(){
       $(this).fadeOut();

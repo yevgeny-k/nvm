@@ -7,6 +7,10 @@ struct httpcmd {
 struct mngdata {
   GMainLoop *mainloop;
   Scfg *cfg;
+  
+  CNVM_Serverout  *enc;
+  CNVM_Module     *tech;
+  CNVM_Module     *player;
 };
 
 void * managerserver (void *ptr);
