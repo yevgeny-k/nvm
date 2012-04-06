@@ -7,6 +7,7 @@
   <script type="text/javascript">
   tech = false;
   player = false;
+  incoming01 = false;
   
   $(document).ready(function(){
     $("#mainpipeline").click(function(){
@@ -20,7 +21,6 @@
         },
         success: function(data) {           
           $("#msgout").html(data.result);
-          //$(this).fadeOut();
         }
         });
     });
@@ -69,7 +69,13 @@
         });
     });
     $("#chng").click(function(){
-      $(this).fadeOut();
+      if (player) {
+        $("#videoplayerpipeline").click();
+        $("#techpipeline").click();
+      } else {
+        $("#techpipeline").click();      
+        $("#videoplayerpipeline").click();
+      }
     });
     $("#shutdown").click(function(){
       $.ajax( {url: "manager", 
@@ -85,6 +91,29 @@
         }
         });
     });
+    $("#rtp01").click(function(){
+      if (incoming01) {
+        $(this).val("Включить Входящее подключение");
+      } else {
+        $(this).val("Выключить Входящее подключение");
+      }
+      incoming01 = ! incoming01;
+      
+      $.ajax( {url: "manager", 
+        type: "POST",
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          if (incoming01) { xhr.setRequestHeader("NVM-Command", "play"); }
+          else        { xhr.setRequestHeader("NVM-Command", "pause"); }
+          xhr.setRequestHeader("NVM-Object", "incoming01");
+          xhr.setRequestHeader("NVM-Data", "");
+        },
+        success: function(data) {           
+          $("#msgout").html(data.result);
+        }
+        });
+    });
+    
   });
   </script>
 </head>
@@ -93,6 +122,8 @@
 <p><input type="button" value="Запустить заставку" id="techpipeline" /></p>
 <p><input type="button" value="Запустить видео" id="videoplayerpipeline" /></p>
 <p><input type="button" value="Переключить" id="chng" /></p>
+<p><input type="button" value="Включить Входящее подключение" id="rtp01" /></p>
+<hr />
 <p><input type="button" value="Остановить микшер" id="shutdown" /></p>
 <p id="msgout"></p>
 </body>

@@ -244,6 +244,10 @@ intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel
 
 
 
+gst-launch filesrc location="wfiles/video5.webm" ! decodebin name=de ! queue ! videoscale ! videorate ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=\(fraction\)1/1,framerate=\(fraction\)25/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! mpegtsmux ! rtpmp2tpay ! udpsink host="192.168.0.188" port=8080 sync=true
+
+gst-launch udpsrc port=8080 caps="application/x-rtp" ! rtpmp2tdepay ! mpegtsdemux ! decodebin name=de ! queue ! ffmpegcolorspace ! autovideosink
+
 
 
 
