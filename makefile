@@ -1,5 +1,5 @@
 TARGET=nvm
-ROOT=/home/dev/nvm
+ROOT=`pwd`
 OBJDIR=obj
 BINDIR=bin
 CC=g++
