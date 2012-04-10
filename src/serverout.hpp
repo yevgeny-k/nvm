@@ -4,8 +4,8 @@ class CNVM_Serverout {
     GstPad *srcpad, *sinkpad;    
     GstCaps *venccaps, *aenccaps, *logocaps;   
    
-    GstElement *intervideosrc, *videointercaps, *videoqueue, *intercapsidentity, *ffmpegcolorspace, *mixcapsin, *mixinidentity;  
-    GstElement *multifilesrc, *pngdec, *alphacolor, *logoscale, *logoinidentity;
+    GstElement *intervideosrc, *videointercaps, *videoqueue, *intercapsidentity, *ffmpegcolorspace, *mixcapsin, *mixidentity;  
+    GstElement *logofilesrc, *pngdec, *alphacolor, *imagefreeze, *logoscale, *logoidentity;
     GstElement *videomixer;  
     GstElement *interaudiosrc, *audiointercaps, *audioqueue, *audiointercapsidentity, *audioconvertENC, *audioresampleENC, *faac;
     GstElement *ffmpegcolorspaceENC, *videorateENC, *videoscaleENC, *x264enc;  

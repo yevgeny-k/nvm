@@ -264,22 +264,13 @@ audiotestsrc ! volume volume=0.2 ! audioconvert ! audioresample ! audio/x-raw-in
 videotestsrc ! clockoverlay halign="right" valign="top" deltax=0 deltay=40 time-format="%d %B %Y\n%H:%M:%S" ! textoverlay text="Технический перерыв на канале..." deltay=-70 font-desc="Sans 21" ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! intervideosink sync=true \
 interaudiosrc ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! lame  bitrate=32 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
 \
-filesrc location="wfiles/logo_for_stream.png" ! pngdec ! alphacolor ! imagefreeze ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
+filesrc location="wfiles/logo_for_stream.png" ! pngdec ! alphacolor ! imagefreeze ! videoscale ! video/x-raw-yuv,width=139,height=139 ! identity ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
 intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! identity ! v.
 
-
-
-videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
-intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! identity ! v.
-
-
-
-multifilesrc location="wfiles/logo_for_stream.png" caps="image/png,framerate=\(fraction\)25/1" ! pngdec ! alphacolor ! videoscale ! video/x-raw-yuv,width=40,height=40 ! identity ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
-intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity ! ffmpegcolorspace ! v.
-
+////////////// TEST
 gst-launch filesrc location="logo_for_stream.png" ! pngdec ! alphacolor ! imagefreeze ! videoscale ! video/x-raw-yuv,width=40,height=40 ! identity ! videomixer name=v ! ffmpegcolorspace ! autovideosink \
 videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=320,height=240,pixel-aspect-ratio=1/1,framerate=25/1 ! v.
-
+////////////////
 
 
 
