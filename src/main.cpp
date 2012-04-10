@@ -41,7 +41,7 @@ int main (int argc, char * argv[])
   fflush (stdout);
   gst_init (&argc, &argv);  
   mainloop = g_main_loop_new (NULL, TRUE);
-  cfg = loadConfig("/home/dev/nvm/bin/config.xml");
+  cfg = loadConfig("/home/kozin/dev/nvm/bin/config.xml");
   
   if (!cfg) {
      fprintf(stderr, "Error: Can not loading configure file! Exit.\n");

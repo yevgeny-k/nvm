@@ -2,7 +2,7 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.2 (15/03/2012)
+ * Version: 1.3 (10/04/2012)
  *
  * Модуль выходной кодировки
  */
@@ -14,7 +14,8 @@
 CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
 {
   char tmpbuffer [600];
-  
+  int logosize = (int) (cfg->production.width * 0.093);
+    
   mainpipeline = gst_pipeline_new ("mainpipeline");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (mainpipeline), FALSE);
 
@@ -23,35 +24,34 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   videointercaps          = gst_element_factory_make ("capsfilter", "videointercaps");
     g_object_set (G_OBJECT (videointercaps), "caps",  
                                               gst_caps_new_simple ("video/x-raw-yuv",                                              
-                                              "format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('I', '4', '2', '0'),                                              
-                                              "framerate", GST_TYPE_FRACTION, cfg->production.framerate, 1,                                              
-                                              "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
                                               "width", G_TYPE_INT, cfg->production.width,
-                                              "height", G_TYPE_INT, cfg->production.height,
+                                              "height", G_TYPE_INT, cfg->production.height,	
+                                              "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+                                              "format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('I', '4', '2', '0'),
+                                              "framerate", GST_TYPE_FRACTION, cfg->production.framerate, 1,
                                               NULL), NULL);
   videoqueue              = gst_element_factory_make ("queue", "videoqueue");
   intercapsidentity       = gst_element_factory_make ("identity", "intercapsidentity");
     g_object_set (G_OBJECT (intercapsidentity), "sync", TRUE, NULL);
   ffmpegcolorspace        = gst_element_factory_make ("ffmpegcolorspace", "ffmpegcolorspace");
   mixcapsin               = gst_element_factory_make ("capsfilter", "mixcapsin");
-
     g_object_set (G_OBJECT (mixcapsin), "caps",  
                                               gst_caps_new_simple ("video/x-raw-yuv",
                                               "width", G_TYPE_INT, cfg->production.width,
                                               "height", G_TYPE_INT, cfg->production.height,	
-                                            "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+                                              "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
                                               "format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('A', 'Y', 'U', 'V'),
                                               "framerate", GST_TYPE_FRACTION, cfg->production.framerate, 1,                                          
                                               NULL), NULL);
-  mixinidentity           = gst_element_factory_make ("identity", "mixinidentity");
-    //g_object_set (G_OBJECT (mixinidentity), "sync", TRUE, NULL);
+  mixidentity           = gst_element_factory_make ("identity", "mixidentity");
+    //g_object_set (G_OBJECT (mixidentity), "sync", TRUE, NULL);
   multifilesrc          = gst_element_factory_make ("multifilesrc", "multifilesrc"); 
   sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "logo_for_stream.png");
   g_object_set (G_OBJECT (multifilesrc), "location", tmpbuffer, "caps", gst_caps_new_simple ("image/png", "framerate", GST_TYPE_FRACTION,cfg->production.framerate,1, NULL), NULL);                            
   pngdec                = gst_element_factory_make ("pngdec", "pngdec");  
   alphacolor            = gst_element_factory_make ("alphacolor", "alphacolor");
   logoscale             = gst_element_factory_make ("videoscale", "logoscale");
-  logoinidentity        = gst_element_factory_make ("identity", "logoinidentity");
+  logoidentity        = gst_element_factory_make ("identity", "logoidentity");
   videomixer            = gst_element_factory_make ("videomixer", "videomixer");
   interaudiosrc         = gst_element_factory_make ("interaudiosrc", "interaudiosrc");
   audiointercaps        = gst_element_factory_make ("capsfilter", "audiointercaps");
@@ -68,7 +68,13 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   audioconvertENC      = gst_element_factory_make ("audioconvert", "audioconvertENC");
   audioresampleENC      = gst_element_factory_make ("audioresample", "audioresampleENC");
   faac                  = gst_element_factory_make ("lame", "lame");
-    g_object_set (G_OBJECT (faac), "bitrate", cfg->streamingLOW.audioencbitrate, NULL);
+    g_object_set (G_OBJECT (faac),  "bitrate", cfg->streamingLOW.audioencbitrate,
+                                    "strict-iso", TRUE,
+                                    NULL);
+//    g_object_set (G_OBJECT (faac), //"bitrate", 32000,
+//                                   "outputformat", "ADTS headers",
+//                                    "profile", 1,                                    
+//                                    NULL);
   ffmpegcolorspaceENC  = gst_element_factory_make ("ffmpegcolorspace", "ffmpegcolorspaceENC");
   videorateENC         = gst_element_factory_make ("videorate", "videorateENC");
   videoscaleENC        = gst_element_factory_make ("videoscale", "videoscaleENC");
@@ -81,8 +87,8 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
  
      
   // Добавляем элементы на "трубу"
-  gst_bin_add_many (GST_BIN (mainpipeline), intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixinidentity, NULL);  
-  gst_bin_add_many (GST_BIN (mainpipeline), multifilesrc, pngdec, alphacolor, logoscale, logoinidentity, NULL); 
+  gst_bin_add_many (GST_BIN (mainpipeline), intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixidentity, NULL);  
+  gst_bin_add_many (GST_BIN (mainpipeline), multifilesrc, pngdec, alphacolor, logoscale, logoidentity, NULL); 
   gst_bin_add (GST_BIN (mainpipeline), videomixer);  
   
   gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, NULL);
@@ -92,21 +98,21 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   
     
   //Соединяем входной видеосигнал и видеомикшер
-  gst_element_link_many (intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixinidentity, NULL);
-  gst_element_link_pads (mixinidentity, "src", videomixer, "sink_%d");
+  gst_element_link_many (intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixidentity, NULL);
+  gst_element_link_pads (mixidentity, "src", videomixer, "sink_%d");
   
   // капс для лого
   logocaps = gst_caps_new_simple ("video/x-raw-yuv",
   //"format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('A', 'Y', 'U', 'V'),
-  "width", G_TYPE_INT, 40,
-  "height", G_TYPE_INT, 40, NULL);
+  "width", G_TYPE_INT, logosize,
+  "height", G_TYPE_INT, logosize, NULL);
   
   // Соединяем лого и видеомикшер
   gst_element_link_many (multifilesrc, pngdec, alphacolor, logoscale, NULL);
-  gst_element_link_filtered (logoscale, logoinidentity, logocaps); 
-  srcpad = gst_element_get_static_pad (logoinidentity, "src");
+  gst_element_link_filtered (logoscale, logoidentity, logocaps); 
+  srcpad = gst_element_get_static_pad (logoidentity, "src");
   sinkpad = gst_element_get_request_pad (videomixer, "sink_%d");
-  g_object_set (G_OBJECT (sinkpad), "xpos", (cfg->production.width - 44), NULL);
+  g_object_set (G_OBJECT (sinkpad), "xpos", cfg->production.width - (logosize + 4), NULL);
   g_object_set (G_OBJECT (sinkpad), "ypos", 4, NULL);
   gst_pad_link (srcpad, sinkpad);
   gst_object_unref (srcpad);

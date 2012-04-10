@@ -2,7 +2,7 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.2 (14/03/2012)
+ * Version: 1.3 (10/04/2012)
  *
  * Tech splash module
  */

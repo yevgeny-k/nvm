@@ -2,7 +2,7 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.2 (17/03/2012)
+ * Version: 1.3 (10/04/2012)
  *
  * Video player module
  */
@@ -43,7 +43,7 @@ CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
   NULL);
     
   filesrc           = gst_element_factory_make ("filesrc", "videoplayer_filesrc"); 
-  sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "video5.webm");
+  sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "video2.ogg");
     g_object_set (G_OBJECT (filesrc), "location", tmpbuffer, NULL);   
   decodebin         = gst_element_factory_make ("decodebin", "videoplayer_decodebin");
   seg_video         = gst_element_factory_make ("identity", "videoplayer_seg_video"); 
