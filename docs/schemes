@@ -257,7 +257,7 @@ gst-launch \
 audiotestsrc ! volume volume=0.1 ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=2 ! lame bitrate=32 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
 
 
-
+////////////////////////////////////
 Текущая схема программы (Tech)
 gst-launch  \
 audiotestsrc ! volume volume=0.2 ! audioconvert ! audioresample ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! interaudiosink sync=true \
@@ -273,7 +273,55 @@ videotestsrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=320,height=240,pixel-
 ////////////////
 
 
+TEST FAAC
+gst-launch  -v \
+audiotestsrc ! volume volume=0.2 ! audioconvert ! audioresample ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! interaudiosink sync=true \
+interaudiosrc ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1,width=16,depth=16 ! lame ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
 
 
+! faac  bitrate=32768 outputformat=1 profile=2 !
+
+
+////////////////////////////////////
+Текущая схема программы (VIDEO)
+gst-launch  \
+filesrc location="wfiles/video5.webm" ! decodebin name=dec ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! intervideosink sync=true \
+dec. ! queue ! audioconvert ! audioresample ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! interaudiosink sync=true \
+interaudiosrc ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1,width=16,depth=16 ! lame bitrate=32 mode="mono" quality=0 strict-iso=true error-protection=true ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
+\
+filesrc location="wfiles/logo_for_stream.png" ! pngdec ! alphacolor ! imagefreeze ! videoscale ! video/x-raw-yuv,width=139,height=139 ! identity ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
+intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity sync=true ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! identity ! v.
+
+
+ОШИБКА ЗВУКА
+gst-launch  \
+filesrc location="wfiles/video5.webm" ! decodebin ! queue ! audioconvert ! audioresample ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! interaudiosink sync=true \
+interaudiosrc ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! lame  bitrate=32 mode="mono" quality=0 strict-iso=true ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+gst-launch  \
+filesrc location="wfiles/video3.wmv" ! decodebin ! queue ! audioconvert ! audioresample ! audio/x-raw-int,rate=22050,channels=1,width=16,depth=16 ! lame  bitrate=32 mode="mono" quality=0 strict-iso=true error-protection=true ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+gst-launch  \
+filesrc location="wfiles/video5.webm" ! decodebin ! queue ! audioconvert ! audioresample ! audio/x-raw-float,rate=22050,channels=1,width=32 ! ffenc_aac bitrate=32768 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+gst-launch  audiotestsrc ! audioconvert ! audioresample ! audio/x-raw-float,rate=22050,channels=1,width=32 ! ffenc_aac bitrate=32768 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+gst-launch  audiotestsrc ! audioconvert ! audioresample ! faac bitrate=32768 ! audio/mpeg,mpegversion=4 ! mpegtsmux ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true
+
+
+gst-launch  audiotestsrc ! audioconvert ! audioresample ! audio/x-raw-float,rate=22050,channels=1,width=32 ! ffenc_aac bitrate=32768 ! fakesink
+
+////////////////////////////////////
+Текущая схема программы (VIDEO)
+gst-launch  \
+filesrc location="wfiles/video5.webm" ! decodebin name=dec ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! intervideosink sync=true \
+dec. ! queue ! audioconvert ! audioresample ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! interaudiosink sync=true \
+interaudiosrc ! audio/x-raw-int,rate=44100,channels=2,width=16,depth=16 ! queue ! identity sync=true ! audioresample ! audioconvert ! audio/x-raw-int,rate=22050,channels=1 ! faac bitrate=32768 ! audio/mpeg,mpegversion=4 ! mpegtsmux name=o ! rtpmp2tpay ! udpsink host="93.191.8.93" port=20101 sync=true \
+\
+filesrc location="wfiles/logo_for_stream.png" ! pngdec ! alphacolor ! imagefreeze ! videoscale ! video/x-raw-yuv,width=139,height=139 ! identity ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! x264enc bitrate=224 byte-stream=true tune=0x00000004 ! o. \
+intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity sync=true ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! identity ! v.
 
 

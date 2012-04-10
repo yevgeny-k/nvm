@@ -2,7 +2,7 @@ class CNVM_Serverout {
   private:
     GstElement *mainpipeline;    
     GstPad *srcpad, *sinkpad;    
-    GstCaps *venccaps, *aenccaps, *logocaps;   
+    GstCaps *venccaps, *aenccaps, *logocaps, *faaccaps;   
    
     GstElement *intervideosrc, *videointercaps, *videoqueue, *intercapsidentity, *ffmpegcolorspace, *mixcapsin, *mixidentity;  
     GstElement *logofilesrc, *pngdec, *alphacolor, *imagefreeze, *logoscale, *logoidentity;

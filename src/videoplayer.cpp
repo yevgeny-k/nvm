@@ -43,7 +43,7 @@ CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
   NULL);
     
   filesrc           = gst_element_factory_make ("filesrc", "videoplayer_filesrc"); 
-  sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "video2.ogg");
+  sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "video5.webm");
     g_object_set (G_OBJECT (filesrc), "location", tmpbuffer, NULL);   
   decodebin         = gst_element_factory_make ("decodebin", "videoplayer_decodebin");
   seg_video         = gst_element_factory_make ("identity", "videoplayer_seg_video"); 

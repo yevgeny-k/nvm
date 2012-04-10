@@ -23,6 +23,8 @@ CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
   name = new char (strlen("Tech splash module") + 1);
   strcpy (name, "Tech splash module");
   
+  int logosize = (int) (cfg->production.width * 0.093);
+  
   techsplashpipeline = gst_pipeline_new ("techsplash");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (techsplashpipeline), FALSE);
   
@@ -44,9 +46,9 @@ CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
   // Создаем элементы
   videotestsrc = gst_element_factory_make ("videotestsrc", "videotestsrc"); 
 	clocktext = gst_element_factory_make ("clockoverlay", "clocktext");
-  g_object_set (G_OBJECT (clocktext), "halign", "right", "valign", "top", "deltax", 0, "deltay", 40, "time-format", "%d %B %Y\n%H:%M:%S", NULL);
+  g_object_set (G_OBJECT (clocktext), "halign", "right", "valign", "top", "deltax", 0, "deltay", logosize, "time-format", "%d %B %Y\n%H:%M:%S", NULL);
 	textmesg = gst_element_factory_make ("textoverlay", "textmesg"); 
-	g_object_set (G_OBJECT (textmesg), "text", "Технический перерыв на канале.\nСамое время отдохнуть...", "deltay", -70, "font-desc", "Sans 21", NULL);
+	g_object_set (G_OBJECT (textmesg), "text", "Технический перерыв на канале.\nСамое время отдохнуть...", "deltay", -(logosize + 20), "font-desc", "Sans 21", NULL);
 
   ffmpegcolorspace = gst_element_factory_make ("ffmpegcolorspace", "ffmpegcolorspace");
   videorate = gst_element_factory_make ("videorate", "videorate");

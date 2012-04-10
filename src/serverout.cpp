@@ -14,7 +14,8 @@
 CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
 {
   char tmpbuffer [600];
-  int logosize = (int) (cfg->production.width * 0.093);
+  int logosize = (int) (cfg->production.width * 0.1); //0.093);
+  int logodelta = (int) 0; //; (cfg->production.width * 0.1244);
     
   mainpipeline = gst_pipeline_new ("mainpipeline");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (mainpipeline), FALSE);
@@ -68,14 +69,15 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
     g_object_set (G_OBJECT (audiointercapsidentity), "sync", TRUE, NULL);
   audioconvertENC      = gst_element_factory_make ("audioconvert", "audioconvertENC");
   audioresampleENC      = gst_element_factory_make ("audioresample", "audioresampleENC");
-  faac                  = gst_element_factory_make ("lame", "lame");
-    g_object_set (G_OBJECT (faac),  "bitrate", cfg->streamingLOW.audioencbitrate,
-                                    "strict-iso", TRUE,
-                                    NULL);
-//    g_object_set (G_OBJECT (faac), //"bitrate", 32000,
+  faac                  = gst_element_factory_make ("faac", "faac");
+//    g_object_set (G_OBJECT (faac),  "bitrate", cfg->streamingLOW.audioencbitrate,
+//                                   "strict-iso", TRUE,
+//                                    NULL);
+    g_object_set (G_OBJECT (faac), "bitrate", cfg->streamingLOW.audioencbitrate,
 //                                   "outputformat", "ADTS headers",
 //                                    "profile", 1,                                    
-//                                    NULL);
+                                    NULL);
+  faaccaps = gst_caps_new_simple ("audio/mpeg", "mpegversion",G_TYPE_INT, 4, NULL);             
   ffmpegcolorspaceENC  = gst_element_factory_make ("ffmpegcolorspace", "ffmpegcolorspaceENC");
   videorateENC         = gst_element_factory_make ("videorate", "videorateENC");
   videoscaleENC        = gst_element_factory_make ("videoscale", "videoscaleENC");
@@ -92,7 +94,7 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   gst_bin_add_many (GST_BIN (mainpipeline), logofilesrc, pngdec, alphacolor, imagefreeze, logoscale, logoidentity, NULL); 
   gst_bin_add (GST_BIN (mainpipeline), videomixer);  
   
-  gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, NULL);
+  gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, faaccaps, NULL);
   gst_bin_add_many (GST_BIN (mainpipeline), ffmpegcolorspaceENC, videorateENC, videoscaleENC, x264enc, NULL);
   
   gst_bin_add_many (GST_BIN (mainpipeline), mpegtsmux, rtpmp2tpay, udpsink, NULL);
@@ -112,8 +114,8 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   gst_element_link_filtered (logoscale, logoidentity, logocaps); 
   srcpad = gst_element_get_static_pad (logoidentity, "src");
   sinkpad = gst_element_get_request_pad (videomixer, "sink_%d");
-  g_object_set (G_OBJECT (sinkpad), "xpos", cfg->production.width - (logosize + 4), NULL);
-  g_object_set (G_OBJECT (sinkpad), "ypos", 4, NULL);
+  g_object_set (G_OBJECT (sinkpad), "xpos", cfg->production.width - (logodelta + logosize + 10), NULL);
+  g_object_set (G_OBJECT (sinkpad), "ypos", 10, NULL);
   gst_pad_link (srcpad, sinkpad);
   gst_object_unref (srcpad);
   gst_object_unref (sinkpad);
@@ -143,11 +145,13 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   // Соединяем кодирование звука и MPEG микшер
   gst_element_link_many (interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, NULL);
   gst_element_link_filtered (audioresampleENC, faac, aenccaps);
-  gst_element_link_pads (faac, "src", mpegtsmux, "sink_%d");
+  gst_element_link_pads_filtered (faac, "src", mpegtsmux, "sink_%d", faaccaps);
   
   // Соединяем выходной
   gst_element_link_many (mpegtsmux, rtpmp2tpay, udpsink, NULL);
        
+       
+  gst_caps_unref (faaccaps);
   gst_caps_unref (logocaps);
   gst_caps_unref (venccaps);
   gst_caps_unref (aenccaps);

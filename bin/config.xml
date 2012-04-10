@@ -5,7 +5,7 @@
   <socket path="/tmp/nvm" port="43001" />
   <codeparams>
     <codeparam width="1280" height="720" framerate="25" audiorate="44100" audiochannels="2" videoencbitrate="0" audioencbitrate="0" usefor="production" />
-    <codeparam width="426" height="240" framerate="24" audiorate="22050" audiochannels="1" videoencbitrate="224" audioencbitrate="32" usefor="streamingLOW" />
+    <codeparam width="426" height="240" framerate="24" audiorate="22050" audiochannels="1" videoencbitrate="224" audioencbitrate="32768" usefor="streamingLOW" />
     <codeparam width="640" height="360" framerate="25" audiorate="44100" audiochannels="1" videoencbitrate="0" audioencbitrate="0" usefor="streamingHI" />
   </codeparams>
 </config>
