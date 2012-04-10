@@ -2,9 +2,15 @@ TARGET=nvm
 ROOT=`pwd`
 OBJDIR=obj
 BINDIR=bin
+LOGDIR=log
 CC=g++
-CFLAGS=-O3 `pkg-config --cflags gstreamer-0.10`
-LDFLAGS=`pkg-config --libs gstreamer-0.10` `pkg-config --libs libxml++-2.6` `pkg-config --libs gthread-2.0` `pkg-config --libs libpcrecpp`
+CFLAGS=-O3  `pkg-config --cflags gstreamer-0.10` \
+            `pkg-config --cflags log4cpp`
+LDFLAGS=`pkg-config --libs gstreamer-0.10` \
+        `pkg-config --libs libxml++-2.6` \
+        `pkg-config --libs gthread-2.0` \
+        `pkg-config --libs libpcrecpp` \
+        `pkg-config --libs log4cpp`
 
 
 $(TARGET) : createdirs moduleclass serverout techsplash videoplayer manager core
@@ -37,6 +43,7 @@ moduleclass :
 createdirs :
 	if [ ! -d $(ROOT)/$(OBJDIR) ]; then mkdir $(ROOT)/$(OBJDIR); fi
 	if [ ! -d $(ROOT)/$(BINDIR) ]; then mkdir $(ROOT)/$(BINDIR); fi
+	if [ ! -d $(ROOT)/$(LOGDIR) ]; then mkdir $(ROOT)/$(LOGDIR); fi
 	
 clean :
 	rm -rf $(ROOT)/obj/*.o

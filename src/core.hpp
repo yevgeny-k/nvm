@@ -13,9 +13,12 @@ struct Scfg {
   int CDNserverPort;
   
   char wfilepath[400];
+  char logfile[400];
+  int logpriority;
   char socketpath[400];
   int socketport;
   
   Scodep production;
   Scodep streamingLOW;
+  log4cpp::Category *log;
 };

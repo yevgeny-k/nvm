@@ -7,6 +7,7 @@ struct httpcmd {
 struct mngdata {
   GMainLoop *mainloop;
   Scfg *cfg;
+  log4cpp::Category *log;
   
   CNVM_Serverout  *enc;
   CNVM_Module     *tech;

@@ -2,7 +2,7 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.2 (15/03/2012)
+ * Version: 1.3 (10/04/2012)
  *
  * Main module
  */
@@ -14,6 +14,9 @@
 #include <libxml++/parsers/textreader.h>
 #include <iostream>
 #include <pthread.h>
+#include <log4cpp/Category.hh>
+#include <log4cpp/FileAppender.hh> 
+#include <log4cpp/BasicLayout.hh>
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "serverout.hpp"
@@ -23,6 +26,7 @@
 
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);
+log4cpp::Category *log =  NULL;
 
 int main (int argc, char * argv[])
 {
@@ -36,9 +40,7 @@ int main (int argc, char * argv[])
   CNVM_Serverout *server;
   
   mngdata md;
-  
-  fprintf (stdout, "Start...");  
-  fflush (stdout);
+                   
   gst_init (&argc, &argv);  
   mainloop = g_main_loop_new (NULL, TRUE);
   cfg = loadConfig("/home/kozin/dev/nvm/bin/config.xml");
@@ -48,48 +50,52 @@ int main (int argc, char * argv[])
      fflush (stderr);
      exit (EXIT_FAILURE);
   }
+    
+  // Инициируем лог файл
+  log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
+  log4cpp::Layout* layout =  new log4cpp::BasicLayout ();
+  app->setLayout (layout);
+  log = &log4cpp::Category::getRoot();
+  log->setAdditivity (false);
+  log->setAppender(app);
+  log->setPriority(cfg->logpriority);  
+  cfg->log = log;
   
+  log->notice("Start program");
+  
+  printConfig (cfg);  
   
   server = new CNVM_Serverout (cfg);
   techsplash = new CNVM_Techsplash (cfg);
   player = new CNVM_Videoplayer (cfg);
   
-  fprintf (stdout, "OK\n");
-  fflush (stdout);
-  printConfig (cfg);   
+    
   
   md.mainloop = mainloop;
   md.cfg = cfg;
   md.enc = server;
   md.tech = techsplash;
   md.player = player;
-  fprintf (stdout, "Start manager server...");
-  fflush (stdout);
+  md.log = log;
+  log->debug("Starting manager server...");
   mngserverret = pthread_create (&mngserver, NULL, managerserver, &md);
   /*fprintf(stdout, "%d", mngserverret);
   if (!mngserverret) {
      fprintf(stderr, "Error: Can not start manager server! Exit.\n");
      exit(1);
   }*/
-  fprintf (stdout, "OK\n");
-  fflush (stdout);
-  
-  /*fprintf(stdout, "Play\n");
-  server->play ();
-  techsplash->play ();*/
+  log->debug("Manager server started");
   
   g_main_loop_run (mainloop);
   
   
-  fprintf (stdout, "Free...\n");
-  fflush (stdout);
+  log->debug("Completion of the program and free memory...");
     delete player;
     delete techsplash;
     delete server;
     delete cfg;
-  fprintf (stdout, "OK\n");
-  fprintf (stdout, "End.\n");
-  fflush (stdout);
+  log->notice("End program; Exit.");
+  log4cpp::Category::shutdown();
   exit (EXIT_SUCCESS);
 }
 
@@ -110,6 +116,13 @@ Scfg * loadConfig(char *p)
           } while(reader.move_to_next_attribute());
       reader.move_to_element(); }  }
 
+      if (!strcmp ("log", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+          do { attributename = reader.get_name().c_str();
+            if (!strcmp ("path", attributename)) { strcpy (cfg->logfile, reader.get_value().c_str()); }
+            if (!strcmp ("priority", attributename)) { cfg->logpriority = atoi(reader.get_value().c_str()); }
+          } while(reader.move_to_next_attribute());
+      reader.move_to_element(); }  }
+      
       if (!strcmp ("socket", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
             if (!strcmp ("path", attributename)) { strcpy (cfg->socketpath, reader.get_value().c_str()); }
@@ -163,28 +176,31 @@ Scfg * loadConfig(char *p)
 
 void printConfig(Scfg *cfg)
 {
-  fprintf (stdout, "******************** Configure ********************\n");
-  fprintf (stdout, "WFiles path: \t%s\n", cfg->wfilepath);
-  fprintf (stdout, "CDN Server paramerts\n");
-  fprintf (stdout, "  IP: \t\t%s\n", cfg->CDNserverIP);
-  fprintf (stdout, "  Port: \t%d\n", cfg->CDNserverPort);
-  fprintf (stdout, "Production encoding paramerts\n");
-  fprintf (stdout, "  Width: \t%d\n", cfg->production.width);
-  fprintf (stdout, "  Height: \t%d\n", cfg->production.height);
-  fprintf (stdout, "  Framerate: \t%d\n", cfg->production.framerate);
-  fprintf (stdout, "  Audio rate: \t%d\n", cfg->production.audiorate);
-  fprintf (stdout, "  Audio channels: \t%d\n", cfg->production.audiochannels);
-  fprintf (stdout, "  Vbitrate: \t%d\n", cfg->production.videoencbitrate);
-  fprintf (stdout, "  Abitrate: \t%d\n", cfg->production.audioencbitrate);             
-  fprintf (stdout, "Low quality streaming encoding paramerts\n");
-  fprintf (stdout, "  Width: \t%d\n", cfg->streamingLOW.width);
-  fprintf (stdout, "  Height: \t%d\n", cfg->streamingLOW.height);
-  fprintf (stdout, "  Framerate: \t%d\n", cfg->streamingLOW.framerate);
-  fprintf (stdout, "  Audio rate: \t%d\n", cfg->streamingLOW.audiorate);
-  fprintf (stdout, "  Audio channels: \t%d\n", cfg->streamingLOW.audiochannels);
-  fprintf (stdout, "  Vbitrate: \t%d\n", cfg->streamingLOW.videoencbitrate);
-  fprintf (stdout, "  Abitrate: \t%d\n", cfg->streamingLOW.audioencbitrate); 
-  fprintf (stdout, "***************************************************\n");
-  fflush (stdout);
+  log->debug("******************** Configure ********************");
+  log->info("WFiles path: \t%s", cfg->wfilepath);
+  log->info("Log file: \t%s", cfg->logfile);
+  log->debug("Log priority: \t%d", cfg->logpriority);
+  log->debug("(EMERG = 0, FATAL = 0, ALERT = 100, CRIT = 200, ERROR = 300,");
+  log->debug("WARN = 400, NOTICE = 500, INFO = 600, DEBUG = 700, NOTSET = 800)");
+  log->debug("CDN Server paramerts");
+  log->info("  IP: \t\t%s", cfg->CDNserverIP);
+  log->info("  Port: \t%d", cfg->CDNserverPort);
+  log->debug("Production encoding paramerts");
+  log->debug("  Width: \t%d", cfg->production.width);
+  log->debug("  Height: \t%d", cfg->production.height);
+  log->debug("  Framerate: \t%d", cfg->production.framerate);
+  log->debug("  Audio rate: \t%d", cfg->production.audiorate);
+  log->debug("  Audio channels: \t%d", cfg->production.audiochannels);
+  log->debug("  Vbitrate: \t%d", cfg->production.videoencbitrate);
+  log->debug("  Abitrate: \t%d", cfg->production.audioencbitrate);             
+  log->debug("Low quality streaming encoding paramerts");
+  log->debug("  Width: \t%d", cfg->streamingLOW.width);
+  log->debug("  Height: \t%d", cfg->streamingLOW.height);
+  log->debug("  Framerate: \t%d", cfg->streamingLOW.framerate);
+  log->debug("  Audio rate: \t%d", cfg->streamingLOW.audiorate);
+  log->debug("  Audio channels: \t%d", cfg->streamingLOW.audiochannels);
+  log->debug("  Vbitrate: \t%d", cfg->streamingLOW.videoencbitrate);
+  log->debug("  Abitrate: \t%d", cfg->streamingLOW.audioencbitrate); 
+  log->debug("***************************************************");
 }
 

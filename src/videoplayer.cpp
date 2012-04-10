@@ -10,12 +10,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <gst/gst.h>
+#include <log4cpp/Category.hh>
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "videoplayer.hpp"
 
-CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
+CNVM_Videoplayer::CNVM_Videoplayer (Scfg *lcfg)
 {
+  cfg = lcfg;
+  cfg->log->debug("Construct Videoplayer module");
   char tmpbuffer [600];
   
   if (name) {
@@ -24,6 +27,8 @@ CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
   name = new char (strlen("Videoplayer module") + 1);
   strcpy (name, "Videoplayer module");
   
+
+    
   videoplayerpipeline = gst_pipeline_new ("videoplayer");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (videoplayerpipeline), FALSE);
   
@@ -78,6 +83,8 @@ CNVM_Videoplayer::CNVM_Videoplayer (Scfg *cfg)
   // Удаляем капсы
   gst_caps_unref (vcaps);  
   gst_caps_unref (acaps);
+  
+  cfg->log->debug("Videoplayer module constructed");
 }
 
 void CNVM_Videoplayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data)
@@ -102,7 +109,7 @@ void CNVM_Videoplayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean
   str = gst_caps_get_structure (caps, 0);
 
   name = gst_structure_get_name (str);
-  g_print ("name: %s", name);
+  //cfg->log->debug("name: %s", name);
 
   if (g_strrstr (name, "audio")) {
     sink = sa;
@@ -117,7 +124,7 @@ void CNVM_Videoplayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean
     sinkpad = gst_element_get_static_pad (sink, "sink");
     gst_pad_link (pad, sinkpad);
     gst_object_unref (sinkpad);
-    g_print (" link.\n", name);
+    //cfg->log->debug(" link.", name);
   }
 }
 
@@ -125,20 +132,17 @@ CNVM_Videoplayer::~CNVM_Videoplayer ()
 {
   gst_element_set_state (GST_ELEMENT (videoplayerpipeline), GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (videoplayerpipeline));
-  fprintf(stdout, "Videoplayer module destroy.\n");
-  fflush (stdout);
+  cfg->log->debug("Videoplayer module destroy.");
 }
 
 void CNVM_Videoplayer::play ()
 {
   gst_element_set_state (GST_ELEMENT (videoplayerpipeline), GST_STATE_PLAYING);
-  fprintf(stdout, "Videoplayer module is played.\n");
-  fflush (stdout);
+  cfg->log->debug("Videoplayer module is played.");
 }
 
 void CNVM_Videoplayer::pause ()
 {
   gst_element_set_state (GST_ELEMENT (videoplayerpipeline), GST_STATE_READY);
-  fprintf(stdout, "Videoplayer module paused.\n");
-  fflush (stdout);
+  cfg->log->debug("Videoplayer module paused.");
 }

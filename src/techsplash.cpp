@@ -10,20 +10,25 @@
 #include <string.h>
 #include <stdio.h>
 #include <gst/gst.h>
+#include <log4cpp/Category.hh>
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "techsplash.hpp"
 
-CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
+CNVM_Techsplash::CNVM_Techsplash (Scfg *lcfg)
 {
+  cfg = lcfg;
+  lcfg->log->debug("Construct Tesh splash module");
   GstBus *bus;
   if (name) {
     delete name;
   }
+  
   name = new char (strlen("Tech splash module") + 1);
   strcpy (name, "Tech splash module");
   
   int logosize = (int) (cfg->production.width * 0.093);
+
   
   techsplashpipeline = gst_pipeline_new ("techsplash");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (techsplashpipeline), FALSE);
@@ -80,27 +85,26 @@ CNVM_Techsplash::CNVM_Techsplash (Scfg *cfg)
 
   // Удаляем капсы
   gst_caps_unref (acaps);
-  gst_caps_unref (vcaps);  
+  gst_caps_unref (vcaps);
+  
+  cfg->log->debug("Tesh splash module constructed");
 }
 
 CNVM_Techsplash::~CNVM_Techsplash ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (techsplashpipeline));
-  fprintf(stdout, "Tesh splash module destroy.\n");
-  fflush (stdout);
+  cfg->log->debug("Tesh splash module destroy.");
 }
 
 void CNVM_Techsplash::play ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_PLAYING);
-  fprintf(stdout, "Tesh splash module is played.\n");
-  fflush (stdout);
+  cfg->log->debug("Tesh splash module is played.");
 }
 
 void CNVM_Techsplash::pause ()
 {
   gst_element_set_state (GST_ELEMENT (techsplashpipeline), GST_STATE_READY);
-  fprintf(stdout, "Tesh splash module paused.\n");
-  fflush (stdout);
+  cfg->log->debug("Tesh splash module paused.");
 }

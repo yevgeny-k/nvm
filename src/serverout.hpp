@@ -10,10 +10,10 @@ class CNVM_Serverout {
     GstElement *interaudiosrc, *audiointercaps, *audioqueue, *audiointercapsidentity, *audioconvertENC, *audioresampleENC, *faac;
     GstElement *ffmpegcolorspaceENC, *videorateENC, *videoscaleENC, *x264enc;  
     GstElement *mpegtsmux, *rtpmp2tpay, *udpsink;
-   
-   
+    
+    Scfg *cfg;
   public:
-    CNVM_Serverout (Scfg *cfg);
+    CNVM_Serverout (Scfg *lcfg);
     ~CNVM_Serverout ();
     void play ();
 };

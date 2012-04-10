@@ -8,15 +8,19 @@
  */
  
 #include <gst/gst.h>
+#include <log4cpp/Category.hh>
 #include "core.hpp"
 #include "serverout.hpp"
 
-CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
+CNVM_Serverout::CNVM_Serverout (Scfg *lcfg)
 {
+  cfg = lcfg;
+  cfg->log->debug("Construct Encoding server...");
   char tmpbuffer [600];
   int logosize = (int) (cfg->production.width * 0.1); //0.093);
-  int logodelta = (int) 0; //; (cfg->production.width * 0.1244);
-    
+  int logodelta = (int) 0; //; (cfg->production.width * 0.1244);  
+
+  
   mainpipeline = gst_pipeline_new ("mainpipeline");
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (mainpipeline), FALSE);
 
@@ -94,7 +98,7 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   gst_bin_add_many (GST_BIN (mainpipeline), logofilesrc, pngdec, alphacolor, imagefreeze, logoscale, logoidentity, NULL); 
   gst_bin_add (GST_BIN (mainpipeline), videomixer);  
   
-  gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, faaccaps, NULL);
+  gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, NULL);
   gst_bin_add_many (GST_BIN (mainpipeline), ffmpegcolorspaceENC, videorateENC, videoscaleENC, x264enc, NULL);
   
   gst_bin_add_many (GST_BIN (mainpipeline), mpegtsmux, rtpmp2tpay, udpsink, NULL);
@@ -155,19 +159,18 @@ CNVM_Serverout::CNVM_Serverout (Scfg *cfg)
   gst_caps_unref (logocaps);
   gst_caps_unref (venccaps);
   gst_caps_unref (aenccaps);
+  cfg->log->debug("Encoding server constructed");
 }
 
 CNVM_Serverout::~CNVM_Serverout()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_NULL);
-  gst_object_unref (GST_BIN (mainpipeline));
-  fprintf(stdout, "Encoding server destroy.\n");
-  fflush (stdout);
+  gst_object_unref (GST_BIN (mainpipeline));  
+  cfg->log->debug("Encoding server destroy");
 }
 
 void CNVM_Serverout::play ()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_PLAYING);
-  fprintf(stdout, "Encoding server is played.\n");
-  fflush (stdout);
+  cfg->log->debug("Encoding server is played");
 }

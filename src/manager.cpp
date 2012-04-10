@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <pcrecpp.h>
 #include <gst/gst.h>
+#include <log4cpp/Category.hh>
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "serverout.hpp"
@@ -19,7 +20,7 @@ bool wrk (httpcmd *cmd, char *reply)
 {
   memset(reply, 0, sizeof(reply));
   
-  fprintf(stdout, "CMD: %s -> OBJ: %s\n", cmd->command, cmd->object);
+  md->log->debug("CMD: %s -> OBJ: %s", cmd->command, cmd->object);
   
   if        (!strcmp(cmd->command, "shutdown")) {
     g_main_loop_quit (md->mainloop);
@@ -60,8 +61,7 @@ void * managerserver (void *ptr)
   
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
-    fprintf(stderr, "ERROR opening socket!\n");
-    fflush (stderr);
+    md->log->error("ERROR opening socket!");
     exit (EXIT_FAILURE);
   }
   memset(&addr, 0, sizeof(addr));
@@ -70,14 +70,12 @@ void * managerserver (void *ptr)
 //  addr.sin_addr.s_addr = INADDR_ANY;
   
   if (inet_aton("127.0.0.1", &addr.sin_addr) == 0) {
-    fprintf(stderr, "Address error!\n");
-    fflush (stderr);
+    md->log->error("Address error!");
     exit (EXIT_FAILURE);
   }
   
   if (bind(sockfd, (const struct sockaddr *)&addr, sizeof(addr)) != 0) {
-     fprintf(stderr, "Bind socket failed!\n");
-     fflush (stderr);
+     md->log->error("Bind socket failed!");
      exit (EXIT_FAILURE);
   }
   
@@ -100,13 +98,11 @@ void * managerserver (void *ptr)
         strcpy (reply, "{\"result\": \"error\"}\n");
       }
       send (client, reply, strlen(reply), 0);
-      fprintf (stdout, "Close connection to client.\n");
-      fflush (stdout);
+      md->log->debug("Close connection to client.");
       close(client);
     }
   }
-  fprintf (stdout, "Close socket.\n");
-  fflush (stdout);
+  md->log->debug("Close socket.");
   close(sockfd);
 }
 
@@ -144,8 +140,7 @@ bool getRegExValue(const char *pattern, const char *buff, char *val)
 	
 	if((re = pcre_compile (pattern, PCRE_CASELESS | PCRE_UTF8, &errstr, &errchar, NULL)) == NULL)
 	{
-		fprintf (stderr, "PCRE-error: %s\nSymbol #%i\nPattern: %s\n", errstr, errchar, pattern);
-		fflush (stderr);
+		md->log->error("PCRE-error: %s\nSymbol #%i\nPattern: %s", errstr, errchar, pattern);
 		return false;
 	} else {
 		re_ext = pcre_study (re, 0, &errstr);

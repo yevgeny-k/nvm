@@ -2,6 +2,8 @@
 <config>
   <cdnserver ip="93.191.8.93" port="20101" />
   <wfile path="/home/kozin/dev/nvm/wfiles" />
+<!-- EMERG = 0, FATAL = 0, ALERT = 100, CRIT = 200, ERROR = 300, WARN = 400, NOTICE = 500, INFO = 600, DEBUG = 700, NOTSET = 800 -->
+  <log path="/home/kozin/dev/nvm/log/nvm.log" priority="700" />
   <socket path="/tmp/nvm" port="43001" />
   <codeparams>
     <codeparam width="1280" height="720" framerate="25" audiorate="44100" audiochannels="2" videoencbitrate="0" audioencbitrate="0" usefor="production" />
