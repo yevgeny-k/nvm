@@ -53,7 +53,7 @@ int main (int argc, char * argv[])
     
   // Инициируем лог файл
   log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
-  log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout	();
+  log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout ();
   layout->setConversionPattern("[%d{%Y-%m-%d %H:%M:%S}] %p: %m%n");
   app->setLayout (layout);
   log = &log4cpp::Category::getRoot();
