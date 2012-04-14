@@ -1,0 +1,1 @@
+void *randomplayer (void *ptr);

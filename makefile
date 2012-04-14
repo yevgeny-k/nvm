@@ -13,13 +13,14 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
         `pkg-config --libs log4cpp`
 
 
-$(TARGET) : createdirs moduleclass serverout techsplash videoplayer remote core
+$(TARGET) : createdirs moduleclass serverout techsplash videoplayer remote randplay core
 	$(CC) $(LDFLAGS) -o $(ROOT)/$(BINDIR)/$(TARGET) \
 	$(ROOT)/$(OBJDIR)/moduleclass.o \
 	$(ROOT)/$(OBJDIR)/videoplayer.o \
 	$(ROOT)/$(OBJDIR)/techsplash.o \
 	$(ROOT)/$(OBJDIR)/serverout.o \
 	$(ROOT)/$(OBJDIR)/remote.o \
+	$(ROOT)/$(OBJDIR)/randplay.o \
 	$(ROOT)/$(OBJDIR)/main.o
 
 core : 
@@ -36,6 +37,9 @@ remote :
 			
 videoplayer : 
 	$(CC) $(CFLAGS) -c $(ROOT)/src/videoplayer.cpp -o $(ROOT)/$(OBJDIR)/videoplayer.o  
+
+randplay : 
+	$(CC) $(CFLAGS) -c $(ROOT)/src/randplay.cpp -o $(ROOT)/$(OBJDIR)/randplay.o  
 	
 moduleclass :
 	$(CC) $(CFLAGS) -c $(ROOT)/src/moduleclass.cpp -o $(ROOT)/$(OBJDIR)/moduleclass.o

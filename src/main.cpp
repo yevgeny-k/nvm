@@ -23,6 +23,7 @@
 #include "videoplayer.hpp"
 #include "techsplash.hpp"
 #include "remote.hpp"
+#include "randplay.hpp"
 
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);
@@ -33,6 +34,7 @@ int main (int argc, char * argv[])
   GMainLoop *mainloop = NULL;
   Scfg *cfg;
   pthread_t rmtserver;
+  pthread_t Trandomplayer;
   int  rmtserverret;
   
   CNVM_Techsplash *techsplash;
@@ -80,6 +82,7 @@ int main (int argc, char * argv[])
   md.log = log;
   log->debug("Starting manager server...");
   rmtserverret = pthread_create (&rmtserver, NULL, remoteserver, &md);
+  pthread_create (&Trandomplayer, NULL, randomplayer, NULL);
   /*fprintf(stdout, "%d", mngserverret);
   if (!mngserverret) {
      fprintf(stderr, "Error: Can not start manager server! Exit.\n");
