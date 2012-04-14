@@ -4,7 +4,7 @@ struct httpcmd {
   char data[1024];  
 };
 
-struct mngdata {
+struct rmtdata {
   GMainLoop *mainloop;
   Scfg *cfg;
   log4cpp::Category *log;
@@ -14,7 +14,7 @@ struct mngdata {
   CNVM_Module     *player;
 };
 
-void * managerserver (void *ptr);
+void * remoteserver (void *ptr);
 bool parsecmd (httpcmd *cmd, char *buff);
 bool wrk (httpcmd *cmd, char *reply);
 bool getRegExValue(const char *pattern, const char *buff, char *val);

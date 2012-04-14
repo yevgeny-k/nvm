@@ -12,9 +12,9 @@
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "serverout.hpp"
-#include "manager.hpp"
+#include "remote.hpp"
 
-mngdata *md = NULL;
+rmtdata *md = NULL;
 
 bool wrk (httpcmd *cmd, char *reply)
 {
@@ -48,9 +48,9 @@ bool wrk (httpcmd *cmd, char *reply)
   return true;
 }
 
-void * managerserver (void *ptr)
+void * remoteserver (void *ptr)
 {
-  md = (mngdata *) ptr;
+  md = (rmtdata *) ptr;
   int sockfd;
   struct sockaddr_in addr;
   int client;

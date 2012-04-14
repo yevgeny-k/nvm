@@ -22,7 +22,7 @@
 #include "serverout.hpp"
 #include "videoplayer.hpp"
 #include "techsplash.hpp"
-#include "manager.hpp"
+#include "remote.hpp"
 
 Scfg * loadConfig (char *p);
 void printConfig (Scfg *cfg);
@@ -32,14 +32,14 @@ int main (int argc, char * argv[])
 {
   GMainLoop *mainloop = NULL;
   Scfg *cfg;
-  pthread_t mngserver;
-  int  mngserverret;
+  pthread_t rmtserver;
+  int  rmtserverret;
   
   CNVM_Techsplash *techsplash;
   CNVM_Videoplayer *player;
   CNVM_Serverout *server;
   
-  mngdata md;
+  rmtdata md;
                    
   gst_init (&argc, &argv);  
   mainloop = g_main_loop_new (NULL, TRUE);
@@ -79,7 +79,7 @@ int main (int argc, char * argv[])
   md.player = player;
   md.log = log;
   log->debug("Starting manager server...");
-  mngserverret = pthread_create (&mngserver, NULL, managerserver, &md);
+  rmtserverret = pthread_create (&rmtserver, NULL, remoteserver, &md);
   /*fprintf(stdout, "%d", mngserverret);
   if (!mngserverret) {
      fprintf(stderr, "Error: Can not start manager server! Exit.\n");
