@@ -16,7 +16,7 @@
 #include <pthread.h>
 #include <log4cpp/Category.hh>
 #include <log4cpp/FileAppender.hh> 
-#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/PatternLayout.hh>
 #include "core.hpp"
 #include "moduleclass.hpp"
 #include "serverout.hpp"
@@ -53,7 +53,8 @@ int main (int argc, char * argv[])
     
   // Инициируем лог файл
   log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
-  log4cpp::Layout* layout =  new log4cpp::BasicLayout ();
+  log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout	();
+  layout->setConversionPattern("[%d{%Y-%m-%d %H:%M:%S}] %p: %m%n");
   app->setLayout (layout);
   log = &log4cpp::Category::getRoot();
   log->setAdditivity (false);

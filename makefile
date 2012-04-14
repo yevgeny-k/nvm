@@ -14,31 +14,31 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
 
 
 $(TARGET) : createdirs moduleclass serverout techsplash videoplayer manager core
-	$(CC) $(LDFLAGS) -o $(ROOT)/bin/$(TARGET) \
-	$(ROOT)/obj/moduleclass.o \
-	$(ROOT)/obj/videoplayer.o \
-	$(ROOT)/obj/techsplash.o \
-	$(ROOT)/obj/serverout.o \
-	$(ROOT)/obj/manager.o \
-	$(ROOT)/obj/main.o
+	$(CC) $(LDFLAGS) -o $(ROOT)/$(BINDIR)/$(TARGET) \
+	$(ROOT)/$(OBJDIR)/moduleclass.o \
+	$(ROOT)/$(OBJDIR)/videoplayer.o \
+	$(ROOT)/$(OBJDIR)/techsplash.o \
+	$(ROOT)/$(OBJDIR)/serverout.o \
+	$(ROOT)/$(OBJDIR)/manager.o \
+	$(ROOT)/$(OBJDIR)/main.o
 
 core : 
 	$(CC) $(CFLAGS) `pkg-config --cflags libxml++-2.6` `pkg-config --cflags gthread-2.0` -c $(ROOT)/src/main.cpp -o $(ROOT)/obj/main.o
 
 techsplash :
-	$(CC) $(CFLAGS) -c $(ROOT)/src/techsplash.cpp -o $(ROOT)/obj/techsplash.o
+	$(CC) $(CFLAGS) -c $(ROOT)/src/techsplash.cpp -o $(ROOT)/$(OBJDIR)/techsplash.o
 
 serverout :
-	$(CC) $(CFLAGS) -c $(ROOT)/src/serverout.cpp -o $(ROOT)/obj/serverout.o
+	$(CC) $(CFLAGS) -c $(ROOT)/src/serverout.cpp -o $(ROOT)/$(OBJDIR)/serverout.o
 	
 manager :
-	$(CC) $(CFLAGS) `pkg-config --cflags libpcrecpp` -c $(ROOT)/src/manager.cpp -o $(ROOT)/obj/manager.o
+	$(CC) $(CFLAGS) `pkg-config --cflags libpcrecpp` -c $(ROOT)/src/manager.cpp -o $(ROOT)/$(OBJDIR)/manager.o
 			
 videoplayer : 
-	$(CC) $(CFLAGS) -c $(ROOT)/src/videoplayer.cpp -o $(ROOT)/obj/videoplayer.o  
+	$(CC) $(CFLAGS) -c $(ROOT)/src/videoplayer.cpp -o $(ROOT)/$(OBJDIR)/videoplayer.o  
 	
 moduleclass :
-	$(CC) $(CFLAGS) -c $(ROOT)/src/moduleclass.cpp -o $(ROOT)/obj/moduleclass.o
+	$(CC) $(CFLAGS) -c $(ROOT)/src/moduleclass.cpp -o $(ROOT)/$(OBJDIR)/moduleclass.o
 
 createdirs :
 	if [ ! -d $(ROOT)/$(OBJDIR) ]; then mkdir $(ROOT)/$(OBJDIR); fi
@@ -46,4 +46,4 @@ createdirs :
 	if [ ! -d $(ROOT)/$(LOGDIR) ]; then mkdir $(ROOT)/$(LOGDIR); fi
 	
 clean :
-	rm -rf $(ROOT)/obj/*.o
+	rm -rf $(ROOT)/$(OBJDIR)/*.o

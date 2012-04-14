@@ -325,3 +325,112 @@ filesrc location="wfiles/logo_for_stream.png" ! pngdec ! alphacolor ! imagefreez
 intervideosrc ! video/x-raw-yuv,format=\(fourcc\)I420,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! queue ! identity sync=true ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=25/1 ! identity ! v.
 
 
+
+
+// Конвертирование
+gst-launch videotestsrc pattern=0 ! video/x-raw-yuv, width=1280,height=720 ! ffmpegcolorspace ! mpeg2enc ! avimux ! filesink location=sample.avi
+
+gst-launch filesrc location=sample.avi ! decodebin ! autovideosink
+
+gst-launch \
+filesrc location='logo_for_stream.png' ! pngdec ! alphacolor ! imagefreeze ! videoscale ! video/x-raw-yuv,width=139,height=139 ! identity ! videomixer name=v ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=426,height=240,pixel-aspect-ratio=1/1,framerate=24/1 ! mpeg2enc ! avimux ! filesink location=sample_conv.avi \
+filesrc location=sample.avi ! decodebin ! v.
+
+gst-launch -v \
+filesrc location='logo_for_stream.png' ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=139,height=139 ! v. \
+filesrc location=sample.avi ! decodebin ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! videomixer name=v sink_1::xpos=372 sink_1::ypos=2 ! queue ! ffmpegcolorspace ! autovideosink
+
+gst-launch -v \
+multifilesrc location='logo_for_stream.png' ! pngdec ! alphacolor ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=139,height=139 ! videomixer name=v sink_1::xpos=1000 sink_1::ypos=10 ! queue ! ffmpegcolorspace ! autovideosink \
+filesrc location=sample.avi ! decodebin  ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+
+
+
+
+I'm here)) I welcome all the participants! Tell me please, how to make pipeline is stopped after the video ends? Pipeline is 
+gst-launch -v filesrc location='logo.png' ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! video/x-raw-yuv,format=\(fourcc\)AYUV ! videomixer name=v ! queue ! ffmpegcolorspace ! autovideosink \
+filesrc location=sample.avi ! decodebin ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+
+
+
+
+gst-launch -v \
+filesrc location='logo_for_stream.png' ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=139,height=139 ! videomixer name=v sink_1::xpos=20 sink_1::ypos=20 ! queue ! ffmpegcolorspace ! autovideosink \
+filesrc location=sample.avi ! decodebin ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+
+
+gst-launch -v \
+filesrc location='logo_for_stream.png' ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=139,height=139 ! videomixer name=v sink_1::xpos=20 sink_1::ypos=20 ! queue ! ffmpegcolorspace ! mpeg2enc ! avimux ! filesink location=sample_conv.avi \
+filesrc location=sample.avi ! decodebin ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+
+
+( filesrc location='%s' ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=139,height=139 ! videomixer name=v sink_1::xpos=20 sink_1::ypos=20 ! queue ! ffmpegcolorspace ! mpeg2enc ! avimux ! filesink location=%s filesrc location=%s ! decodebin ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v. )
+
+
+gst-launch -v filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! queue ! ffmpegcolorspace ! x264enc ! queue ! mux. \
+filesrc location=/web/kprftv/f/videoclips/video/sample.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v. \
+ffmux_mp4 name=mux ! filesink location=/videotmp/sample.mp4
+
+
+decode. ! queue ! audioconvert ! faac ! queue ! mux. \
+
+
+gst-launch filesrc location=/web/kprftv/f/videoclips/video/1748.avi ! decodebin name=decode \
+filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! queue ! ffmpegcolorspace ! x264enc ! queue ! mux. \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v. \
+decode. ! queue ! audioconvert ! faac ! queue ! mux. \
+mp4mux name=mux ! filesink location=/videotmp/sample.mp4
+
+
+gst-launch filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! queue ! v. \
+videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! ffmpegcolorspace ! x264enc ! queue ! mux. \ 
+mp4mux name=mux ! filesink location=/videotmp/1748.avi \
+filesrc location=/web/kprftv/f/videoclips/video/1748_0.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+decode. ! queue ! audioconvert ! faac ! queue ! mux.
+
+
+
+
+gst-launch filesrc location=/web/kprftv/f/videoclips/video/1748_0.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! coglogoinsert xpos=1142 location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! ffmpegcolorspace ! ffenc_mpeg4 ! queue ! mux. mp4mux name=mux ! filesink location=/videotmp/1748.mp4
+
+
+
+filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! queue ! v. \
+videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! ffmpegcolorspace ! x264enc ! queue ! mux. \ 
+mp4mux name=mux ! filesink location=/videotmp/1748.avi \
+filesrc location=/web/kprftv/f/videoclips/video/1748_0.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! v.
+decode. ! queue ! audioconvert ! faac ! queue ! mux.
+
+
+
+
+// MP4
+gst-launch \
+filesrc location=/web/kprftv/f/videoclips/video/1748_0.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! queue ! v. \
+filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! queue ! v. \
+videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! ffmpegcolorspace ! x264enc ! queue ! mux. \
+decode. ! queue ! audioconvert ! faac ! queue ! mux. \
+mp4mux name=mux ! filesink location=/videotmp/1748.mp4
+
+
+
+id 863568163
+pass 7714
+
+// DivX MPEG-4 v5 AAC matroska
+gst-launch \
+filesrc location=/web/kprftv/f/videoclips/video/1748_0.avi ! decodebin name=decode \
+decode. ! queue ! ffmpegcolorspace ! videorate ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=1280,height=720,pixel-aspect-ratio=1/1,framerate=30/1 ! queue ! v. \
+filesrc location=/home/kozin/dev/uyoutubed/var/logo_for_stream.png ! pngdec ! alphacolor ! imagefreeze ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,format=\(fourcc\)AYUV,width=128,height=128 ! queue ! v. \
+videomixer name=v sink_1::xpos=1142 sink_1::ypos=10 ! ffmpegcolorspace ! ffenc_mpeg4 bitrate=1500000 ! queue ! mux. \
+decode. ! queue ! audioresample ! audioconvert ! audio/x-raw-int,rate=44100,channels=2 ! faac bitrate=92000 ! queue ! mux. \
+matroskamux name=mux ! filesink location=/videotmp/1748.mkv
+
+15096009070
+15120000000
+
