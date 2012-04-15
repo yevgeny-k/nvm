@@ -10,7 +10,7 @@
 #include <gst/gst.h>
 #include <log4cpp/Category.hh>
 #include "../core.hpp"
-#include "moduleclass.hpp"
+#include "ccontentmodule.hpp"
 #include "techsplash.hpp"
 
 CNVM_Techsplash::CNVM_Techsplash (Scfg *lcfg)

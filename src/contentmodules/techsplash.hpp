@@ -1,4 +1,4 @@
-class CNVM_Techsplash: public CNVM_Module {
+class CNVM_Techsplash: public CContentModule {
   private:
     GstElement *techsplashpipeline;
     GstElement *videotestsrc, *clocktext, *textmesg, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;

@@ -15,7 +15,7 @@
 #include <gst/gst.h>
 #include <log4cpp/Category.hh>
 #include "core.hpp"
-#include "contentmodules/moduleclass.hpp"
+#include "contentmodules/ccontentmodule.hpp"
 #include "serverout.hpp"
 #include "remote.hpp"
 

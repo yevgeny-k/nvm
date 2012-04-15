@@ -17,7 +17,7 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
 
 $(TARGET) : createdirs ccontentmodule serverout techsplash videoplayer remote randplay core
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$(TARGET) \
-	$(OBJDIR)/moduleclass.o \
+	$(OBJDIR)/ccontentmodule.o \
 	$(OBJDIR)/videoplayer.o \
 	$(OBJDIR)/techsplash.o \
 	$(OBJDIR)/serverout.o \

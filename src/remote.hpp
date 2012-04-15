@@ -10,8 +10,8 @@ struct rmtdata {
   log4cpp::Category *log;
   
   CNVM_Serverout  *enc;
-  CNVM_Module     *tech;
-  CNVM_Module     *player;
+  CContentModule  *tech;
+  CContentModule  *player;
 };
 
 void * remoteserver (void *ptr);

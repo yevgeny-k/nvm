@@ -2,7 +2,7 @@ struct newpads {
   GstElement *v, *a;  
 };
 
-class CNVM_Videoplayer: public CNVM_Module {
+class CNVM_Videoplayer: public CContentModule {
   private:
     GstElement *videoplayerpipeline;
     GstElement *filesrc, *decodebin, *seg_video, *videoqueue, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;

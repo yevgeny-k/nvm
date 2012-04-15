@@ -1,9 +1,9 @@
-class CNVM_Module {
+class CContentModule {
   protected:
     char *name;    
   public:
-    CNVM_Module ();
-    ~CNVM_Module ();
+    CContentModule ();
+    ~CContentModule ();
     char  *getname() { return name; }
     virtual void play() {}
     virtual void pause() {}  

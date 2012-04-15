@@ -16,7 +16,7 @@
 #include <log4cpp/FileAppender.hh> 
 #include <log4cpp/PatternLayout.hh>
 #include "core.hpp"
-#include "contentmodules/moduleclass.hpp"
+#include "contentmodules/ccontentmodule.hpp"
 #include "serverout.hpp"
 #include "contentmodules/videoplayer.hpp"
 #include "contentmodules/techsplash.hpp"
