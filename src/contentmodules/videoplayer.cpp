@@ -2,8 +2,6 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.3 (10/04/2012)
- *
  * Video player module
  */
  
@@ -11,7 +9,7 @@
 #include <stdio.h>
 #include <gst/gst.h>
 #include <log4cpp/Category.hh>
-#include "core.hpp"
+#include "../core.hpp"
 #include "moduleclass.hpp"
 #include "videoplayer.hpp"
 

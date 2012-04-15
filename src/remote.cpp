@@ -10,7 +10,7 @@
 #include <gst/gst.h>
 #include <log4cpp/Category.hh>
 #include "core.hpp"
-#include "moduleclass.hpp"
+#include "contentmodules/moduleclass.hpp"
 #include "serverout.hpp"
 #include "remote.hpp"
 

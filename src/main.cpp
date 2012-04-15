@@ -16,10 +16,10 @@
 #include <log4cpp/FileAppender.hh> 
 #include <log4cpp/PatternLayout.hh>
 #include "core.hpp"
-#include "moduleclass.hpp"
+#include "contentmodules/moduleclass.hpp"
 #include "serverout.hpp"
-#include "videoplayer.hpp"
-#include "techsplash.hpp"
+#include "contentmodules/videoplayer.hpp"
+#include "contentmodules/techsplash.hpp"
 #include "remote.hpp"
 #include "randplay.hpp"
 
