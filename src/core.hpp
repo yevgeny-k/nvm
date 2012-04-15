@@ -13,13 +13,14 @@ struct Scfg {
   int CDNserverPort;
   
   char wfilepath[400];
+  char videopath[400];
   char logfile[400];
   int logpriority;
   char socketpath[400];
   int socketport;
   
   char  dbserver [100];
-  int   dbport = 3306;
+  int   dbport;
   char  dbuser [50];
   char  dbpassword [50];
   char  database [100];

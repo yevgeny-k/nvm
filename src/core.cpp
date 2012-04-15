@@ -16,8 +16,10 @@
 #include <log4cpp/Category.hh>
 #include <log4cpp/FileAppender.hh> 
 #include <log4cpp/PatternLayout.hh>
+#include <mysql/mysql.h>
 #include "core.hpp"
 #include "serverout.hpp"
+#include "contentmodules/ccontentmodule.hpp"
 #include "contentmodules/randplay.hpp"
 
 
@@ -43,6 +45,7 @@ Scfg * loadConfig(char *p)
   strcpy(cfg->CDNserverIP, "localhost");
   cfg->CDNserverPort = 9001;
   
+  strcpy(cfg->videopath, "video");
   strcpy(cfg->wfilepath, "wfiles");
   strcpy(cfg->logfile, "/var/log/nvm.log");
   cfg->logpriority = 400;
@@ -64,6 +67,12 @@ Scfg * loadConfig(char *p)
           } while(reader.move_to_next_attribute());
       reader.move_to_element(); }  }
 
+      if (!strcmp ("video", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+          do { attributename = reader.get_name().c_str();
+            if (!strcmp ("path", attributename)) { strcpy (cfg->videopath, reader.get_value().c_str()); }
+          } while(reader.move_to_next_attribute());
+      reader.move_to_element(); }  }
+  
       if (!strcmp ("log", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
             if (!strcmp ("path", attributename)) { strcpy (cfg->logfile, reader.get_value().c_str()); }
@@ -132,7 +141,7 @@ Scfg * loadConfig(char *p)
   return cfg;
 }
 
-void printConfig(Scfg *cfg)
+void printConfig()
 {
   log->debug("******************** Configure ********************");
   log->info("WFiles path: \t%s", cfg->wfilepath);
@@ -166,6 +175,8 @@ int main (int argc, char **argv)
 {
   GMainLoop *mainloop = NULL;
   CServerout *encserver;
+  CRandPlayer *rndplayer;
+  
   char cfgfile[400];
   const char* short_options = "h:c:";
   const struct option long_options[] = {
@@ -217,15 +228,20 @@ int main (int argc, char **argv)
   log->notice("Start program");
   
   //Печатаем конфигурационный файл
-  printConfig (cfg);
+  printConfig ();
   mainloop = g_main_loop_new (NULL, TRUE);
     
   encserver = new CServerout ();
   encserver->play ();
-
-  g_main_loop_run (mainloop);
+  
+  rndplayer = new CRandPlayer ();
+  if (rndplayer->initConnectToDB ()) {
+    rndplayer->play ();
+    g_main_loop_run (mainloop);
+  }
   
   log->debug("Completion of the program and free memory...");
+    delete rndplayer;
     delete encserver;
     delete cfg;
     g_main_loop_unref (mainloop);

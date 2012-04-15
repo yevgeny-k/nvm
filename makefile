@@ -13,7 +13,7 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
         `pkg-config --libs gthread-2.0` \
         `pkg-config --libs libpcrecpp` \
         `pkg-config --libs log4cpp` \
-        -L/usr/lib64/mysql/
+        -L/usr/lib64/mysql/ -lmysqlclient
 
 $(TARGET) : createdirs serverout randplay core
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$(TARGET) \
