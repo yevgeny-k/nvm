@@ -2,8 +2,6 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.2 (15/03/2012)
- *
  * Parent class
  */
  

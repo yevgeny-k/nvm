@@ -15,7 +15,7 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
         `pkg-config --libs log4cpp` \
         -L/usr/lib64/mysql/
 
-$(TARGET) : createdirs cmoduleclass serverout techsplash videoplayer remote randplay core
+$(TARGET) : createdirs ccontentmodule serverout techsplash videoplayer remote randplay core
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$(TARGET) \
 	$(OBJDIR)/moduleclass.o \
 	$(OBJDIR)/videoplayer.o \
@@ -44,8 +44,8 @@ videoplayer :
 randplay : 
 	$(CC) $(CFLAGS) -c $(SRCDIR)/randplay.cpp -o $(OBJDIR)/randplay.o  
 	
-cmoduleclass :
-	$(CC) $(CFLAGS) -c $(CMOD)/moduleclass.cpp -o $(OBJDIR)/moduleclass.o
+ccontentmodule :
+	$(CC) $(CFLAGS) -c $(CMOD)/ccontentmodule.cpp -o $(OBJDIR)/ccontentmodule.o
 
 createdirs :
 	if [ ! -d $(OBJDIR) ]; then mkdir $(OBJDIR); fi
