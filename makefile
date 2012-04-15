@@ -23,11 +23,11 @@ $(TARGET) : createdirs ccontentmodule serverout techsplash videoplayer remote ra
 	$(OBJDIR)/serverout.o \
 	$(OBJDIR)/remote.o \
 	$(OBJDIR)/randplay.o \
-	$(OBJDIR)/main.o
+	$(OBJDIR)/core.o
 
 core : 
 	$(CC) $(CFLAGS) `pkg-config --cflags libxml++-2.6` \
-	`pkg-config --cflags gthread-2.0` -c $(SRCDIR)/main.cpp -o $(OBJDIR)/main.o
+	`pkg-config --cflags gthread-2.0` -c $(SRCDIR)/core.cpp -o $(OBJDIR)/core.o
 
 techsplash :
 	$(CC) $(CFLAGS) -c $(CMOD)/techsplash.cpp -o $(OBJDIR)/techsplash.o
@@ -42,7 +42,7 @@ videoplayer :
 	$(CC) $(CFLAGS) -c $(CMOD)/videoplayer.cpp -o $(OBJDIR)/videoplayer.o  
 
 randplay : 
-	$(CC) $(CFLAGS) -c $(SRCDIR)/randplay.cpp -o $(OBJDIR)/randplay.o  
+	$(CC) $(CFLAGS) -c $(CMOD)/randplay.cpp -o $(OBJDIR)/randplay.o  
 	
 ccontentmodule :
 	$(CC) $(CFLAGS) -c $(CMOD)/ccontentmodule.cpp -o $(OBJDIR)/ccontentmodule.o
