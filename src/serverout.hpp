@@ -1,4 +1,4 @@
-class CNVM_Serverout {
+class CServerout {
   private:
     GstElement *mainpipeline;    
     GstPad *srcpad, *sinkpad;    
@@ -10,10 +10,8 @@ class CNVM_Serverout {
     GstElement *interaudiosrc, *audiointercaps, *audioqueue, *audiointercapsidentity, *audioconvertENC, *audioresampleENC, *faac;
     GstElement *ffmpegcolorspaceENC, *videorateENC, *videoscaleENC, *x264enc;  
     GstElement *mpegtsmux, *rtpmp2tpay, *udpsink;
-    
-    Scfg *cfg;
   public:
-    CNVM_Serverout (Scfg *lcfg);
-    ~CNVM_Serverout ();
+    CServerout ();
+    ~CServerout ();
     void play ();
 };

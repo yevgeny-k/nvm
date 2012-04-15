@@ -15,13 +15,9 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
         `pkg-config --libs log4cpp` \
         -L/usr/lib64/mysql/
 
-$(TARGET) : createdirs ccontentmodule serverout techsplash videoplayer remote randplay core
+$(TARGET) : createdirs serverout randplay core
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$(TARGET) \
-	$(OBJDIR)/ccontentmodule.o \
-	$(OBJDIR)/videoplayer.o \
-	$(OBJDIR)/techsplash.o \
 	$(OBJDIR)/serverout.o \
-	$(OBJDIR)/remote.o \
 	$(OBJDIR)/randplay.o \
 	$(OBJDIR)/core.o
 
@@ -29,24 +25,12 @@ core :
 	$(CC) $(CFLAGS) `pkg-config --cflags libxml++-2.6` \
 	`pkg-config --cflags gthread-2.0` -c $(SRCDIR)/core.cpp -o $(OBJDIR)/core.o
 
-techsplash :
-	$(CC) $(CFLAGS) -c $(CMOD)/techsplash.cpp -o $(OBJDIR)/techsplash.o
-
 serverout :
 	$(CC) $(CFLAGS) -c $(SRCDIR)/serverout.cpp -o $(OBJDIR)/serverout.o
-	
-remote :
-	$(CC) $(CFLAGS) `pkg-config --cflags libpcrecpp` -c $(SRCDIR)/remote.cpp -o $(OBJDIR)/remote.o
-			
-videoplayer : 
-	$(CC) $(CFLAGS) -c $(CMOD)/videoplayer.cpp -o $(OBJDIR)/videoplayer.o  
 
 randplay : 
 	$(CC) $(CFLAGS) -c $(CMOD)/randplay.cpp -o $(OBJDIR)/randplay.o  
 	
-ccontentmodule :
-	$(CC) $(CFLAGS) -c $(CMOD)/ccontentmodule.cpp -o $(OBJDIR)/ccontentmodule.o
-
 createdirs :
 	if [ ! -d $(OBJDIR) ]; then mkdir $(OBJDIR); fi
 	if [ ! -d $(BINDIR) ]; then mkdir $(BINDIR); fi

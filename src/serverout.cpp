@@ -2,8 +2,6 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.3 (10/04/2012)
- *
  * Модуль выходной кодировки
  */
  
@@ -12,10 +10,12 @@
 #include "core.hpp"
 #include "serverout.hpp"
 
-CNVM_Serverout::CNVM_Serverout (Scfg *lcfg)
+extern log4cpp::Category *log;
+extern Scfg *cfg;
+
+CServerout::CServerout ()
 {
-  cfg = lcfg;
-  cfg->log->debug("Construct Encoding server...");
+  log->debug("Construct Encoding server...");
   char tmpbuffer [600];
   int logosize = (int) (cfg->production.width * 0.1); //0.093);
   int logodelta = (int) 0; //; (cfg->production.width * 0.1244);  
@@ -159,18 +159,18 @@ CNVM_Serverout::CNVM_Serverout (Scfg *lcfg)
   gst_caps_unref (logocaps);
   gst_caps_unref (venccaps);
   gst_caps_unref (aenccaps);
-  cfg->log->debug("Encoding server constructed");
+  log->debug("Encoding server constructed");
 }
 
-CNVM_Serverout::~CNVM_Serverout()
+CServerout::~CServerout()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_NULL);
   gst_object_unref (GST_BIN (mainpipeline));  
-  cfg->log->debug("Encoding server destroy");
+  log->debug("Encoding server destroy");
 }
 
-void CNVM_Serverout::play ()
+void CServerout::play ()
 {
   gst_element_set_state (GST_ELEMENT (mainpipeline), GST_STATE_PLAYING);
-  cfg->log->debug("Encoding server is played");
+  log->debug("Encoding server is played");
 }

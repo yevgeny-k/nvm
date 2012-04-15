@@ -26,5 +26,4 @@ struct Scfg {
   
   Scodep production;
   Scodep streamingLOW;
-  log4cpp::Category *log;
 };

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <gst/gst.h>
+#include <getopt.h>
 #include <libxml++/libxml++.h>
 #include <libxml++/parsers/textreader.h>
 #include <iostream>
@@ -16,90 +17,20 @@
 #include <log4cpp/FileAppender.hh> 
 #include <log4cpp/PatternLayout.hh>
 #include "core.hpp"
-#include "contentmodules/ccontentmodule.hpp"
 #include "serverout.hpp"
-#include "contentmodules/videoplayer.hpp"
-#include "contentmodules/techsplash.hpp"
-#include "remote.hpp"
-#include "randplay.hpp"
+#include "contentmodules/randplay.hpp"
 
-Scfg * loadConfig (char *p);
-void printConfig (Scfg *cfg);
+
+///////////////////////////////////////////////////////////////////
+char ver[] = "Version: 1.0.5-fake (15/04/2012)";
+///////////////////////////////////////////////////////////////////  
+
+///////////////////////////////////////////////////////////////////
+//              Объявление глобальных переменных                 //
 log4cpp::Category *log =  NULL;
+Scfg *cfg = NULL;
+///////////////////////////////////////////////////////////////////
 
-int main (int argc, char * argv[])
-{
-  GMainLoop *mainloop = NULL;
-  Scfg *cfg;
-  pthread_t rmtserver;
-  pthread_t Trandomplayer;
-  int  rmtserverret;
-  
-  CNVM_Techsplash *techsplash;
-  CNVM_Videoplayer *player;
-  CNVM_Serverout *server;
-  
-  rmtdata md;
-                   
-  gst_init (&argc, &argv);  
-  mainloop = g_main_loop_new (NULL, TRUE);
-  cfg = loadConfig("/home/kozin/dev/nvm/bin/config.xml");
-  
-  if (!cfg) {
-     fprintf(stderr, "Error: Can not loading configure file! Exit.\n");
-     fflush (stderr);
-     exit (EXIT_FAILURE);
-  }
-    
-  // Инициируем лог файл
-  log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
-  log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout ();
-  layout->setConversionPattern("[%d{%Y-%m-%d %H:%M:%S}] %p: %m%n");
-  app->setLayout (layout);
-  log = &log4cpp::Category::getRoot();
-  log->setAdditivity (false);
-  log->setAppender(app);
-  log->setPriority(cfg->logpriority);  
-  cfg->log = log;
-  
-  log->notice("Start program");
-  
-  printConfig (cfg);  
-  
-  server = new CNVM_Serverout (cfg);
-  techsplash = new CNVM_Techsplash (cfg);
-  player = new CNVM_Videoplayer (cfg);
-  
-    
-  
-  md.mainloop = mainloop;
-  md.cfg = cfg;
-  md.enc = server;
-  md.tech = techsplash;
-  md.player = player;
-  md.log = log;
-  log->debug("Starting manager server...");
-  rmtserverret = pthread_create (&rmtserver, NULL, remoteserver, &md);
-  pthread_create (&Trandomplayer, NULL, randomplayer, NULL);
-  /*fprintf(stdout, "%d", mngserverret);
-  if (!mngserverret) {
-     fprintf(stderr, "Error: Can not start manager server! Exit.\n");
-     exit(1);
-  }*/
-  log->debug("Manager server started");
-  
-  g_main_loop_run (mainloop);
-  
-  
-  log->debug("Completion of the program and free memory...");
-    delete player;
-    delete techsplash;
-    delete server;
-    delete cfg;
-  log->notice("End program; Exit.");
-  log4cpp::Category::shutdown();
-  exit (EXIT_SUCCESS);
-}
 
 Scfg * loadConfig(char *p)
 {
@@ -109,6 +40,21 @@ Scfg * loadConfig(char *p)
   Scfg *cfg;  
   cfg = new Scfg;
   
+  strcpy(cfg->CDNserverIP, "localhost");
+  cfg->CDNserverPort = 9001;
+  
+  strcpy(cfg->wfilepath, "wfiles");
+  strcpy(cfg->logfile, "/var/log/nvm.log");
+  cfg->logpriority = 400;
+  strcpy(cfg->socketpath, "/tmp/nvm");
+  cfg->socketport = 22700;
+  
+  strcpy(cfg->dbserver, "localhost");
+  cfg->dbport = 3306;
+  strcpy(cfg->dbuser, "user");
+  strcpy(cfg->dbpassword, "pass");
+  strcpy(cfg->database, "kprf_tv");
+      
   while(reader.read())
   {  
       nodename = reader.get_name().c_str();
@@ -216,3 +162,74 @@ void printConfig(Scfg *cfg)
   log->debug("***************************************************");
 }
 
+int main (int argc, char **argv)
+{
+  GMainLoop *mainloop = NULL;
+  CServerout *encserver;
+  char cfgfile[400];
+  const char* short_options = "h:c:";
+  const struct option long_options[] = {
+    {"help",no_argument,NULL,'h'},
+    {"configfile",optional_argument,NULL,'c'},
+    {NULL,0,NULL,0}
+  };
+  int rez;
+  int option_index = -1;
+            
+
+  fprintf (stderr, "NewVideoMixer ");
+  fprintf (stderr, "%s\n", ver);
+  fflush  (stderr);
+  
+  strcpy (cfgfile, "config.xml");  
+
+  while ( (rez=getopt_long(argc,argv,short_options,long_options,&option_index)) != -1) {
+    switch (rez){
+      case 'h':
+        fprintf( stdout, "Usage: nvm --configfile=cfgfile\n");
+        fflush ( stdout );
+        exit(EXIT_SUCCESS);
+        break;
+      case 'c':
+        strcpy (cfgfile, optarg);
+        break;
+    };
+    option_index = -1;
+  };
+
+  gst_init (NULL, NULL);
+  
+  fprintf( stdout, "Loading configure file: %s\n", cfgfile);
+  fflush ( stdout );
+  
+  cfg = loadConfig (cfgfile);
+    
+  // Инициируем лог файл
+  log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
+  log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout ();
+  layout->setConversionPattern("[%d{%Y-%m-%d %H:%M:%S}] %p: %m%n");
+  app->setLayout (layout);
+  log = &log4cpp::Category::getRoot();
+  log->setAdditivity (false);
+  log->setAppender(app);
+  log->setPriority(cfg->logpriority);
+  
+  log->notice("Start program");
+  
+  //Печатаем конфигурационный файл
+  printConfig (cfg);
+  mainloop = g_main_loop_new (NULL, TRUE);
+    
+  encserver = new CServerout ();
+  encserver->play ();
+
+  g_main_loop_run (mainloop);
+  
+  log->debug("Completion of the program and free memory...");
+    delete encserver;
+    delete cfg;
+    g_main_loop_unref (mainloop);
+  log->notice("End program; Exit.");
+  log4cpp::Category::shutdown();
+  exit (EXIT_SUCCESS);
+}
