@@ -18,6 +18,12 @@ struct Scfg {
   char socketpath[400];
   int socketport;
   
+  char  dbserver [100];
+  int   dbport = 3306;
+  char  dbuser [50];
+  char  dbpassword [50];
+  char  database [100];
+  
   Scodep production;
   Scodep streamingLOW;
   log4cpp::Category *log;

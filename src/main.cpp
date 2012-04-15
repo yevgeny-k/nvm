@@ -2,8 +2,6 @@
  *
  * Copyright (C) <2012> Communist Party of the Russian Federation <adm@kprf.ru>
  *
- * Version: 1.3 (10/04/2012)
- *
  * Main module
  */
 
@@ -133,7 +131,17 @@ Scfg * loadConfig(char *p)
             if (!strcmp ("port", attributename)) { cfg->socketport = atoi(reader.get_value().c_str()); }
           } while(reader.move_to_next_attribute());
       reader.move_to_element(); }  }      
-      
+
+      if (!strcmp ("database", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+          do { attributename = reader.get_name().c_str();
+            if (!strcmp ("server", attributename)) { strcpy (cfg->dbserver, reader.get_value().c_str()); }
+            if (!strcmp ("port", attributename)) { cfg->dbport = atoi(reader.get_value().c_str()); }
+            if (!strcmp ("user", attributename)) { strcpy (cfg->dbuser, reader.get_value().c_str()); }
+            if (!strcmp ("password", attributename)) { strcpy (cfg->dbpassword, reader.get_value().c_str()); }
+            if (!strcmp ("databasename", attributename)) { strcpy (cfg->database, reader.get_value().c_str()); }
+          } while(reader.move_to_next_attribute());
+      reader.move_to_element(); }  }
+            
       if (!strcmp ("cdnserver", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
             if (!strcmp ("ip", attributename)) { strcpy (cfg->CDNserverIP, reader.get_value().c_str()); }

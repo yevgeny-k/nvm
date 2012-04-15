@@ -10,8 +10,8 @@ LDFLAGS=`pkg-config --libs gstreamer-0.10` \
         `pkg-config --libs libxml++-2.6` \
         `pkg-config --libs gthread-2.0` \
         `pkg-config --libs libpcrecpp` \
-        `pkg-config --libs log4cpp`
-
+        `pkg-config --libs log4cpp` \
+        -L/usr/lib64/mysql/
 
 $(TARGET) : createdirs moduleclass serverout techsplash videoplayer remote randplay core
 	$(CC) $(LDFLAGS) -o $(ROOT)/$(BINDIR)/$(TARGET) \
