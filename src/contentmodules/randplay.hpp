@@ -1,9 +1,14 @@
+struct newpads {
+  GstElement *v, *a;  
+};
+
 class CRandPlayer: public CContentModule {
   private:
-    GstElement *techsplashpipeline;
-    GstElement *videotestsrc, *clocktext, *textmesg, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;
-    GstElement *audiotestsrc, *testvolume, *audioconvert, *audioresample, *interaudiosink;
+    GstElement *pipeline;
+    GstElement *filesrc, *decodebin, *seg_video, *videoqueue, *ffmpegcolorspace, *videorate, *videoscale, *intervideosink;
+    GstElement *seg_audio, *audioqueue, *audioconvert, *audioresample, *interaudiosink;
     
+    newpads av;
     GstCaps *vcaps, *acaps;
     
     int maxitems;
@@ -15,10 +20,13 @@ class CRandPlayer: public CContentModule {
     
     bool refreshList();
     void randSelect();
+    
+    static void cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data);
   public:
     CRandPlayer ();
     ~CRandPlayer ();
     void play();
     void pause();
+    void next();
     bool initConnectToDB();
 };

@@ -19,6 +19,8 @@ extern Scfg *cfg;
 
 CRandPlayer::CRandPlayer(): maxitems(50)
 {
+  char elementname [100];
+  
   log->debug("Construct randome player module");
   name = new char [strlen("randplayer") + 1];
   strcpy (name, "randplayer");
@@ -31,6 +33,74 @@ CRandPlayer::CRandPlayer(): maxitems(50)
   mysql_options(dblink, MYSQL_OPT_RECONNECT, &reconnect);
   
   strcpy (lastpath, "");
+  
+  pipeline = gst_pipeline_new (name);
+  gst_pipeline_set_auto_flush_bus (GST_PIPELINE (pipeline), FALSE);
+  
+   vcaps = gst_caps_new_simple ("video/x-raw-yuv",
+  "width", G_TYPE_INT, cfg->production.width,
+  "height", G_TYPE_INT, cfg->production.height,	
+  "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+  "format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('I', '4', '2', '0'),
+  "framerate", GST_TYPE_FRACTION, cfg->production.framerate, 1,
+  NULL);
+
+  acaps = gst_caps_new_simple ("audio/x-raw-int",
+  "width",G_TYPE_INT, 16,
+  "rate", G_TYPE_INT, cfg->production.audiorate,
+  "channels", G_TYPE_INT, cfg->production.audiochannels,
+  "depth", G_TYPE_INT, 16,
+  NULL);
+                          sprintf (elementname, "%s_%s", name, "filesrc");
+  filesrc           = gst_element_factory_make ("filesrc", elementname);  
+    g_object_set (G_OBJECT (filesrc), "location", lastpath, NULL);   
+                          sprintf (elementname, "%s_%s", name, "decodebin");
+  decodebin         = gst_element_factory_make ("decodebin", elementname);
+                          sprintf (elementname, "%s_%s", name, "seg_video");
+  seg_video         = gst_element_factory_make ("identity", elementname); 
+                          sprintf (elementname, "%s_%s", name, "seg_audio");
+  seg_audio         = gst_element_factory_make ("identity", elementname); 
+    av.a = seg_audio;
+    av.v = seg_video;
+    g_signal_connect (G_OBJECT (decodebin), "new-decoded-pad", G_CALLBACK (cb_newpad), &av);    
+                          sprintf (elementname, "%s_%s", name, "videoqueue");
+  videoqueue        = gst_element_factory_make ("queue", elementname);
+                          sprintf (elementname, "%s_%s", name, "audioqueue");
+  audioqueue        = gst_element_factory_make ("queue", elementname);
+                          sprintf (elementname, "%s_%s", name, "ffmpegcolorspace"); 
+  ffmpegcolorspace  = gst_element_factory_make ("ffmpegcolorspace", elementname);
+                          sprintf (elementname, "%s_%s", name, "videorate"); 
+  videorate         = gst_element_factory_make ("videorate", elementname);
+                          sprintf (elementname, "%s_%s", name, "videoscale");
+  videoscale        = gst_element_factory_make ("videoscale", elementname);
+                          sprintf (elementname, "%s_%s", name, "audioconvert");
+  audioconvert      = gst_element_factory_make ("audioconvert", elementname);
+                          sprintf (elementname, "%s_%s", name, "audioresample");
+  audioresample     = gst_element_factory_make ("audioresample", elementname);
+                          sprintf (elementname, "%s_%s", name, "intervideosink");
+  intervideosink    = gst_element_factory_make ("intervideosink", elementname);	
+	  g_object_set (G_OBJECT (intervideosink), "sync", TRUE, NULL);
+                          sprintf (elementname, "%s_%s", name, "interaudiosink");
+  interaudiosink    = gst_element_factory_make ("interaudiosink", elementname);	
+	  g_object_set (G_OBJECT (interaudiosink), "sync", TRUE, NULL);
+	  	
+	// Добавляем
+  gst_bin_add_many (GST_BIN (pipeline), filesrc, decodebin, seg_video, videoqueue, ffmpegcolorspace, videorate, videoscale, intervideosink, NULL);
+  gst_bin_add_many (GST_BIN (pipeline), seg_audio, audioqueue, audioconvert, audioresample, interaudiosink, NULL);
+  
+  // Содиняем элементы
+  gst_element_link (filesrc, decodebin);
+  gst_element_link_many (seg_video, videoqueue, ffmpegcolorspace, videorate, videoscale, NULL);
+  gst_element_link_filtered (videoscale, intervideosink, vcaps);
+
+  gst_element_link_many (seg_audio, audioqueue, audioconvert, audioresample, NULL);
+  gst_element_link_filtered (audioresample, interaudiosink, acaps);
+  
+  // Удаляем капсы
+  gst_caps_unref (vcaps);  
+  gst_caps_unref (acaps);
+  
+  log->debug("Videoplayer module constructed");
 }
 
 CRandPlayer::~CRandPlayer()
@@ -38,6 +108,8 @@ CRandPlayer::~CRandPlayer()
   delete [] name;
   delete [] info;
   mysql_close (dblink);
+  gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_NULL);
+  gst_object_unref (GST_OBJECT (pipeline));
   log->debug("Randome player module destroy");
 }
 
@@ -126,15 +198,61 @@ void CRandPlayer::randSelect()
   }
 }
 
+void CRandPlayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data)
+{
+  GstCaps *caps;
+  GstStructure *str;
+  GstPad *sinkpad;
+  GstElement *sink;
+  const gchar *name;
+  GstStateChangeReturn ret;
+  GstPadLinkReturn lret;
+  newpads *av;
+  GstElement *sa, *sv;
+  
+  av = (newpads *) data;
+  sa = av->a;
+  sv = av->v;  
+
+  caps = gst_pad_get_caps (pad);
+  str = gst_caps_get_structure (caps, 0);
+
+  name = gst_structure_get_name (str);
+
+  if (g_strrstr (name, "audio")) {
+    sink = sa;
+  } else if (g_strrstr (name, "video")) {
+    sink = sv;
+  } else {
+    sink = NULL;
+  }
+  gst_caps_unref (caps);
+
+  if (sink) {
+    sinkpad = gst_element_get_static_pad (sink, "sink");
+    gst_pad_link (pad, sinkpad);
+    gst_object_unref (sinkpad);
+  }
+}
+
 void CRandPlayer::play()
 {
   log->debug("Randome player module is played");
-  refreshList();
-  randSelect();
-  log->debug("lastpath: %s", lastpath);
+  next();  
 }
 
 void CRandPlayer::pause()
 {
   log->debug("Randome player module paused");
+  gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_READY);
+}
+
+void CRandPlayer::next()
+{
+  refreshList();
+  randSelect();
+  g_object_set (G_OBJECT (filesrc), "location", lastpath, NULL);
+  gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_READY);
+  gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_PLAYING);
+  log->info("Playing file: %s", lastpath);
 }
