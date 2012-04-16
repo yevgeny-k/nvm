@@ -170,7 +170,7 @@ bool CRandPlayer::refreshList()
     if (pch != NULL)
     {
       pch += strlen ("public://");
-      sprintf (tmp, "%s/%s", cfg->videopath, pch);
+      sprintf (tmp, "%s/%s", cfg->videodir, pch);
       filelist[i] = new char [strlen(tmp) + 1];
       strcpy (filelist[i], tmp);
       i++;

@@ -9,6 +9,7 @@
 #include <string.h>
 #include <gst/gst.h>
 #include <getopt.h>
+#include <unistd.h>
 #include <libxml++/libxml++.h>
 #include <libxml++/parsers/textreader.h>
 #include <iostream>
@@ -24,7 +25,7 @@
 
 
 ///////////////////////////////////////////////////////////////////
-char ver[] = "Version: 1.0.5-fake (15/04/2012)";
+char ver[] = "Version: 1.0.5-fake (16/04/2012)";
 ///////////////////////////////////////////////////////////////////  
 
 ///////////////////////////////////////////////////////////////////
@@ -45,8 +46,9 @@ Scfg * loadConfig(char *p)
   strcpy(cfg->CDNserverIP, "localhost");
   cfg->CDNserverPort = 9001;
   
-  strcpy(cfg->videopath, "video");
-  strcpy(cfg->wfilepath, "wfiles");
+  strcpy(cfg->videodir, "video");
+  strcpy(cfg->logofile, "logo_for_stream.png");
+  cfg->logok = 0.1;  
   strcpy(cfg->logfile, "/var/log/nvm.log");
   cfg->logpriority = 400;
   strcpy(cfg->socketpath, "/tmp/nvm");
@@ -61,18 +63,20 @@ Scfg * loadConfig(char *p)
   while(reader.read())
   {  
       nodename = reader.get_name().c_str();
-      if (!strcmp ("wfile", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+
+      if (!strcmp ("filesystem", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
-            if (!strcmp ("path", attributename)) { strcpy (cfg->wfilepath, reader.get_value().c_str()); }
+            if (!strcmp ("videodir", attributename)) { strcpy (cfg->videodir, reader.get_value().c_str()); }
+          } while(reader.move_to_next_attribute());
+      reader.move_to_element(); }  }
+      
+      if (!strcmp ("logo", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
+          do { attributename = reader.get_name().c_str();
+            if (!strcmp ("file", attributename)) { strcpy (cfg->logofile, reader.get_value().c_str()); }
+            if (!strcmp ("k", attributename)) { cfg->logok = atof(reader.get_value().c_str()); }
           } while(reader.move_to_next_attribute());
       reader.move_to_element(); }  }
 
-      if (!strcmp ("video", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
-          do { attributename = reader.get_name().c_str();
-            if (!strcmp ("path", attributename)) { strcpy (cfg->videopath, reader.get_value().c_str()); }
-          } while(reader.move_to_next_attribute());
-      reader.move_to_element(); }  }
-  
       if (!strcmp ("log", nodename)) { if(reader.has_attributes()) { reader.move_to_first_attribute();
           do { attributename = reader.get_name().c_str();
             if (!strcmp ("path", attributename)) { strcpy (cfg->logfile, reader.get_value().c_str()); }
@@ -144,7 +148,7 @@ Scfg * loadConfig(char *p)
 void printConfig()
 {
   log->debug("******************** Configure ********************");
-  log->info("WFiles path: \t%s", cfg->wfilepath);
+  log->info("Video directory: \t%s", cfg->videodir);
   log->info("Log file: \t%s", cfg->logfile);
   log->debug("Log priority: \t%d", cfg->logpriority);
   log->debug("(EMERG = 0, FATAL = 0, ALERT = 100, CRIT = 200, ERROR = 300,");
@@ -152,6 +156,7 @@ void printConfig()
   log->debug("CDN Server paramerts");
   log->info("  IP: \t\t%s", cfg->CDNserverIP);
   log->info("  Port: \t%d", cfg->CDNserverPort);
+  log->info("Logo path: \t%s", cfg->logofile);
   log->debug("Production encoding paramerts");
   log->debug("  Width: \t%d", cfg->production.width);
   log->debug("  Height: \t%d", cfg->production.height);
@@ -173,6 +178,7 @@ void printConfig()
 
 int main (int argc, char **argv)
 {
+	pid_t	pid;
   GMainLoop *mainloop = NULL;
   CServerout *encserver;
   CRandPlayer *rndplayer;
@@ -208,13 +214,30 @@ int main (int argc, char **argv)
     option_index = -1;
   };
 
-  gst_init (NULL, NULL);
-  
   fprintf( stdout, "Loading configure file: %s\n", cfgfile);
   fflush ( stdout );
   
   cfg = loadConfig (cfgfile);
-    
+  
+  pid = fork();
+  if (pid == -1) {
+    exit(EXIT_FAILURE);
+  } else {
+  if (pid != 0)
+    exit(EXIT_SUCCESS);
+  }
+
+  if (setsid() == -1)
+    exit(EXIT_FAILURE);
+
+  if (chdir("/") == -1)
+    exit(EXIT_FAILURE);
+
+  for (int i = getdtablesize(); i >= 0; --i)
+    close(i);
+
+  gst_init (NULL, NULL);
+  		
   // Инициируем лог файл
   log4cpp::Appender* app = new  log4cpp::FileAppender ("FileAppender", cfg->logfile);
   log4cpp::PatternLayout* layout =  new log4cpp::PatternLayout ();

@@ -17,7 +17,7 @@ CServerout::CServerout ()
 {
   log->debug("Construct Encoding server...");
   char tmpbuffer [600];
-  int logosize = (int) (cfg->production.width * 0.1); //0.093);
+  int logosize = (int) (cfg->production.width * cfg->logok); //0.093);
   int logodelta = (int) 0; //; (cfg->production.width * 0.1244);  
 
   
@@ -51,8 +51,7 @@ CServerout::CServerout ()
   mixidentity           = gst_element_factory_make ("identity", "mixidentity");
     //g_object_set (G_OBJECT (mixidentity), "sync", TRUE, NULL);
   logofilesrc          = gst_element_factory_make ("filesrc", "logofilesrc"); 
-    sprintf (tmpbuffer, "%s/%s", cfg->wfilepath, "logo_for_stream.png");
-    g_object_set (G_OBJECT (logofilesrc), "location", tmpbuffer, NULL);                            
+    g_object_set (G_OBJECT (logofilesrc), "location", cfg->logofile, NULL);                            
   pngdec                = gst_element_factory_make ("pngdec", "pngdec");  
   alphacolor            = gst_element_factory_make ("alphacolor", "alphacolor");
   imagefreeze           = gst_element_factory_make ("imagefreeze", "imagefreeze");
@@ -118,8 +117,8 @@ CServerout::CServerout ()
   gst_element_link_filtered (logoscale, logoidentity, logocaps); 
   srcpad = gst_element_get_static_pad (logoidentity, "src");
   sinkpad = gst_element_get_request_pad (videomixer, "sink_%d");
-  g_object_set (G_OBJECT (sinkpad), "xpos", cfg->production.width - (logodelta + logosize + 10), NULL);
-  g_object_set (G_OBJECT (sinkpad), "ypos", 10, NULL);
+  g_object_set (G_OBJECT (sinkpad), "xpos", cfg->production.width - (logodelta + logosize + 30), NULL);
+  g_object_set (G_OBJECT (sinkpad), "ypos", 50, NULL);
   gst_pad_link (srcpad, sinkpad);
   gst_object_unref (srcpad);
   gst_object_unref (sinkpad);

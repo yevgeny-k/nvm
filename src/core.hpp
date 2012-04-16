@@ -9,14 +9,15 @@ struct Scodep {
 };
 
 struct Scfg {
-  char CDNserverIP[50];
+  char CDNserverIP [50];
   int CDNserverPort;
   
-  char wfilepath[400];
-  char videopath[400];
-  char logfile[400];
+  char  logofile [400];
+  float logok;
+  char videodir [400];
+  char logfile [400];
   int logpriority;
-  char socketpath[400];
+  char socketpath [400];
   int socketport;
   
   char  dbserver [100];

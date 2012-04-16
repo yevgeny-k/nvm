@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
   <cdnserver ip="93.191.8.93" port="20101" />
-  <wfile path="/home/kozin/dev/nvm/wfiles" />
-  <video path="/web/kprftv/f" />
+  <filesystem videotmpdir="/videotmp" videodir="/web/kprftv/f" />
+  <logo file="/home/kozin/dev/nvm/wfiles/logo_for_stream.png" k="0.1" />
 <!-- EMERG = 0, FATAL = 0, ALERT = 100, CRIT = 200, ERROR = 300, WARN = 400, NOTICE = 500, INFO = 600, DEBUG = 700, NOTSET = 800 -->
   <log path="/home/kozin/dev/nvm/log/nvm.log" priority="700" />
   <socket path="/tmp/nvm" port="43001" />
