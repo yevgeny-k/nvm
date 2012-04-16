@@ -10,6 +10,7 @@ class CRandPlayer: public CContentModule {
     
     newpads av;
     GstCaps *vcaps, *acaps;
+    GstBus *bus;
     
     int maxitems;
     int fileamount;
@@ -21,7 +22,6 @@ class CRandPlayer: public CContentModule {
     bool refreshList();
     void randSelect();
     
-    static void cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data);
   public:
     CRandPlayer ();
     ~CRandPlayer ();
@@ -30,3 +30,6 @@ class CRandPlayer: public CContentModule {
     void next();
     bool initConnectToDB();
 };
+
+static void cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data);
+static void eos_cb (GstBus * bus, GstMessage * msg, CRandPlayer * c);

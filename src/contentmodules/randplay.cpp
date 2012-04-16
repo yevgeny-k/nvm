@@ -21,7 +21,7 @@ CRandPlayer::CRandPlayer(): maxitems(50)
 {
   char elementname [100];
   
-  log->debug("Construct randome player module");
+  log->debug ("Construct randome player module");
   name = new char [strlen("randplayer") + 1];
   strcpy (name, "randplayer");
   info = new char [strlen("Randome player module") + 1];
@@ -36,6 +36,11 @@ CRandPlayer::CRandPlayer(): maxitems(50)
   
   pipeline = gst_pipeline_new (name);
   gst_pipeline_set_auto_flush_bus (GST_PIPELINE (pipeline), FALSE);
+  
+  bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
+  gst_bus_add_signal_watch (bus);
+  g_signal_connect (bus, "message::eos", G_CALLBACK (eos_cb), this);
+  
   
    vcaps = gst_caps_new_simple ("video/x-raw-yuv",
   "width", G_TYPE_INT, cfg->production.width,
@@ -100,7 +105,7 @@ CRandPlayer::CRandPlayer(): maxitems(50)
   gst_caps_unref (vcaps);  
   gst_caps_unref (acaps);
   
-  log->debug("Videoplayer module constructed");
+  log->debug ("Videoplayer module constructed");
 }
 
 CRandPlayer::~CRandPlayer()
@@ -110,7 +115,8 @@ CRandPlayer::~CRandPlayer()
   mysql_close (dblink);
   gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (pipeline));
-  log->debug("Randome player module destroy");
+  gst_object_unref (bus);
+  log->debug ("Randome player module destroy");
 }
 
 bool CRandPlayer::initConnectToDB()
@@ -132,7 +138,7 @@ bool CRandPlayer::refreshList()
 	MYSQL_ROW row;
 	int i;
 	 
-  log->debug("Refresh video list");  
+  log->debug ("Refresh video list");  
   mysql_ping (dblink);
   
   for (i=0; i < fileamount; i++)
@@ -178,7 +184,7 @@ void CRandPlayer::randSelect()
 {
   int cur, i = 0;
   srand (time (NULL));
-  log->debug("Rand select");
+  log->debug ("Rand select");
 
   while (true)
   {
@@ -198,7 +204,7 @@ void CRandPlayer::randSelect()
   }
 }
 
-void CRandPlayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data)
+static void cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last, gpointer data)
 {
   GstCaps *caps;
   GstStructure *str;
@@ -237,22 +243,28 @@ void CRandPlayer::cb_newpad (GstElement * decodebin, GstPad * pad, gboolean last
 
 void CRandPlayer::play()
 {
-  log->debug("Randome player module is played");
-  next();  
+  log->debug ("Randome player module is played");
+  next ();  
 }
 
 void CRandPlayer::pause()
 {
-  log->debug("Randome player module paused");
+  log->debug ("Randome player module paused");
   gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_READY);
 }
 
 void CRandPlayer::next()
 {
-  refreshList();
-  randSelect();
-  g_object_set (G_OBJECT (filesrc), "location", lastpath, NULL);
+  refreshList ();
+  randSelect ();
   gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_READY);
+  g_object_set (G_OBJECT (filesrc), "location", lastpath, NULL);
   gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_PLAYING);
-  log->info("Playing file: %s", lastpath);
+  log->info ("Playing file: %s", lastpath);
+}
+
+static void eos_cb (GstBus * bus, GstMessage * msg, CRandPlayer * c)
+{
+  log->debug ("Randome player EOS");
+  c->next ();
 }
