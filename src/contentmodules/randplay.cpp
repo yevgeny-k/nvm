@@ -183,7 +183,7 @@ bool CRandPlayer::refreshList()
 void CRandPlayer::randSelect()
 {
   int cur, i = 0;
-  srand (time (NULL));
+  srand (time(NULL) * 2810 + rand());
   log->debug ("Rand select");
 
   while (true)
