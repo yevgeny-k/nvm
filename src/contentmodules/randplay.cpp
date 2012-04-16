@@ -189,7 +189,7 @@ void CRandPlayer::randSelect()
   while (true)
   {
     i++;
-    cur = rand() % fileamount + 1;
+    cur = rand() % fileamount;
     if (strcmp (filelist[cur], lastpath))
     {
       strcpy (lastpath, filelist[cur]);
