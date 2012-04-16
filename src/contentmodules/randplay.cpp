@@ -184,12 +184,12 @@ void CRandPlayer::randSelect()
 {
   int cur, i = 0;
   srand (time(NULL) * 2810 + rand());
-  log->debug ("Rand select");
 
   while (true)
   {
     i++;
     cur = rand() % fileamount;
+    log->debug ("Rand select index %d", cur);
     if (strcmp (filelist[cur], lastpath))
     {
       strcpy (lastpath, filelist[cur]);
