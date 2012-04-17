@@ -260,13 +260,13 @@ int main (int argc, char **argv)
   encserver->play ();
   
   
-  icmanager ();
-  conn1 = new CIncomingConnection ();
-  /*rndplayer = new CRandPlayer ();
+  //icmanager ();
+  //conn1 = new CIncomingConnection ();
+  rndplayer = new CRandPlayer ();
   if (rndplayer->initConnectToDB ()) {
     rndplayer->play ();
     g_main_loop_run (mainloop);
-  }*/
+  }
   
   //g_main_loop_run (mainloop);
   

@@ -85,7 +85,17 @@ CServerout::CServerout ()
   videorateENC         = gst_element_factory_make ("videorate", "videorateENC");
   videoscaleENC        = gst_element_factory_make ("videoscale", "videoscaleENC");
   x264enc               = gst_element_factory_make ("x264enc", "x264enc"); 
-    g_object_set (G_OBJECT (x264enc), "byte-stream", TRUE, "bitrate", cfg->streamingLOW.videoencbitrate, "tune", 0x00000004, NULL);    
+    g_object_set (G_OBJECT (x264enc), "byte-stream", TRUE,
+                                      "bitrate", cfg->streamingLOW.videoencbitrate,
+                                      "tune", 0x00000004,
+                                      "pass", "pass3",
+                                      "profile", "high",
+                                      "speed-preset", "veryslow",
+                                      "bframes", 4,
+                                      "quantizer", 40,
+                                      "ref", 4,
+                                      "analyse", "b8x8",
+                                      NULL);    
   mpegtsmux             = gst_element_factory_make ("mpegtsmux", "mpegtsmux");  
   rtpmp2tpay            = gst_element_factory_make ("rtpmp2tpay", "rtpmp2tpay");
   udpsink               = gst_element_factory_make ("udpsink", "udpsink");
