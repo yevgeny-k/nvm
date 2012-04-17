@@ -26,10 +26,6 @@ package {
   import flash.net.Responder;
   import flash.system.Security;
   import flash.media.Video;
-  import flash.ui.ContextMenu;
-  import flash.ui.ContextMenuItem;
-  import flash.ui.ContextMenuBuiltInItems;
-  import flash.events.ContextMenuEvent;
   import flash.net.navigateToURL;
   import flash.net.URLRequest;
   import flash.events.MouseEvent;
@@ -38,103 +34,100 @@ package {
   import flash.net.URLLoader;
   import flash.geom.Rectangle;
 
+  [SWF(width = "428", height = "242")]
+  
   public class kprftvlivec extends Sprite {
-    private  var mfWidth          :Number = 854;
-    private  var mfHeight        :Number = 480;
-    private  var redFrame        :Shape;
-    private  var qbHD            :StandardButton;
-    private  var qbST            :StandardButton;
-    private  var qbSD            :StandardButton;
-    private var qLabel          :TextField;
-
-    private  var bShare          :StandardButton;
-    private  var bEmbed          :StandardButton;    
-    private var lShare          :TextField;
-
-    private var bfullScreen      :StandardButton;
-
-    private var cnst            :ConStatus;
-    private var wtch            :Watcher;
-
-    private var nc              :NetConnection = null;
-    private var ns               :NetStream = null;
-
-    private var serverName      :String = "rtmp://live1.kprf.tv/rtp";
-    private var streamName      :String = "";
-    private var streamE          :int = 0;
-    private var streamHDName    :String = "";
-    private var streamHDE        :int = 0;
-
-    private var connectTimer    :Timer;
-
-    private var trEnable        :int = 0;
-    private var trEnablePlay    :int = -1;
-    private var trDate          :String = "";
-    private var trTitle          :String = "";
-    private var trPic            :String = "";
-    private var trQV            :int = 0;
-    private var trCount          :int = 0;
-
-    private var conn            :uint = 0;
-    private var strenbl          :uint = 0;
-    private var pl              :uint = 0;
-    private var curstrm          :uint = 0;
-
-    private var isPlayNow        :uint = 0;
-    private var isbePlayed      :uint = 0;
-    
-
-    private var video            :Video;
-
-    private var cntmenu          :ContextMenu;
-    private var vartext1        :String = "KPRF.TV live TV player /ver.: 3.0.2-beta/";
-    private var vartext2        :String = "The author of the player -- Evgeniy Kozin (© CPRF)";
-
-    private var sbuff            :MsgBuffer;
+    private var redFrame       :Shape;
 
     private var dataServer      :String = "http://kprf.tv/param_live_kprftv.xml";
     private var dataTimer       :Timer;
     private var dataXML         :XML;
     private var dataXMLLoader   :URLLoader;
     private var dataXMLRequest  :URLRequest;
-
-    private var ncClientObj      :Object;
-
-    private var shareE          :uint = 0;
-    private var shareD          :ShareDlg;
-
+    
+    private var mfWidth         :Number = 426;
+    private var mfHeight        :Number = 240;
+    
+    private var nc              :NetConnection = null;
+    private var ns              :NetStream = null;
+    private var serverName      :String = "rtmp://live1.kprf.tv/rtp";
+    private var streamName      :String = "streamld";
+    
+    private var video            :Video;
+    private var sbuff            :MsgBuffer;
+    
     public function kprftvlivec () : void
     {
-      console.log("App run");
-      if ( stage ) {
-        init( null );
+      if (stage) {
+        init (null);
       } else {
-        addEventListener( Event.ADDED_TO_STAGE, init );
+        addEventListener (Event.ADDED_TO_STAGE, init);
       }
     }
 
-    private function init(e:Event = null):void 
+    private function init (e:Event = null):void 
     {
-      removeEventListener(Event.ADDED_TO_STAGE, init);
-      Security.allowDomain( "*" );
-      stage.scaleMode = StageScaleMode.NO_SCALE;
-      stage.align = StageAlign.TOP_LEFT;
-      stage.addEventListener( FullScreenEvent.FULL_SCREEN, fullScreenEventHandle );
+      removeEventListener (Event.ADDED_TO_STAGE, init);
+      Security.allowDomain ("*");
+      stage.scaleMode = StageScaleMode.SHOW_ALL;
 
+  
       var myMatrix:Matrix = new Matrix();
       myMatrix.createGradientBox(mfWidth, mfHeight, Math.PI * 0.5, 0, 0);
         
-      
       redFrame = new Shape;
-      redFrame.graphics.lineStyle(4, 0xd50000, 1, true, LineScaleMode.NONE, CapsStyle.ROUND);
+      redFrame.graphics.lineStyle(1, 0xd50000, 1, true, LineScaleMode.NONE, CapsStyle.ROUND);
       redFrame.graphics.beginGradientFill(GradientType.LINEAR, [0xc0c0c0, 0x7b7b7b, 0xf3f3f3], [100, 100, 100], [0, 128, 255], myMatrix);
-      redFrame.graphics.drawRect(2, 2, mfWidth + 4, mfHeight + 4);
+      redFrame.graphics.drawRect(0, 0, mfWidth + 1, mfHeight + 1 );
 
+      video = new Video(mfWidth, mfHeight);
+      video.x = 1;
+      video.y = 1;
+      video.smoothing = true;
+      
+      nc = new NetConnection();
+      nc.addEventListener(NetStatusEvent.NET_STATUS, NetConnectionStatus);
+      nc.client = this;
 
-                  
+      sbuff = new MsgBuffer();
+      sbuff.x = Math.round(mfWidth / 2) - Math.round(sbuff.width / 2);
+      sbuff.y = Math.round(mfHeight / 2) - Math.round(sbuff.height / 2);
+                       
       addChild(redFrame);
-
-    
+      addChild(video);
+      addChild(sbuff);
+      sbuff.Show();      
+      nc.connect(serverName, "user", "pass" );   
     }
+       
+    public  function NetConnectionStatus(event:NetStatusEvent) : void
+    {
+      switch (event.info.code) {
+        case "NetConnection.Connect.Success":
+          removeChild(sbuff);
+          sbuff.Hide();
+          ns = new NetStream(nc);
+          ns.bufferTime = 3;
+          video.attachNetStream(ns);
+          ns.addEventListener(NetStatusEvent.NET_STATUS, NetStreamStatus);
+          ns.play(streamName);
+          break;
+      }
+    }
+    public  function NetStreamStatus(event:NetStatusEvent) : void
+    {            
+      switch (event.info.code) {
+        case "NetStream.Play.PublishNotify":       
+        case "NetStream.Buffer.Empty":
+        case "NetStream.Play.Start":
+          addChild(sbuff);
+          sbuff.Show();
+          break;        
+        case "NetStream.Buffer.Full":
+          removeChild(sbuff);
+          sbuff.Hide();
+          break;
+      }  
+    }    
   }
 }
