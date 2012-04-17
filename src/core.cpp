@@ -22,10 +22,11 @@
 #include "serverout.hpp"
 #include "contentmodules/ccontentmodule.hpp"
 #include "contentmodules/randplay.hpp"
+#include "contentmodules/incoming.hpp"
 
 
 ///////////////////////////////////////////////////////////////////
-char ver[] = "Version: 1.1.6 (16/04/2012)";
+char ver[] = "Version: 1.1.7 (17/04/2012)";
 ///////////////////////////////////////////////////////////////////  
 
 ///////////////////////////////////////////////////////////////////
@@ -182,6 +183,7 @@ int main (int argc, char **argv)
   GMainLoop *mainloop = NULL;
   CServerout *encserver;
   CRandPlayer *rndplayer;
+  CIncomingConnection *conn1;
   
   char cfgfile[400];
   const char* short_options = "h:c:";
@@ -198,7 +200,7 @@ int main (int argc, char **argv)
   fprintf (stderr, "%s\n", ver);
   fflush  (stderr);
   
-  strcpy (cfgfile, "config.xml");  
+  strcpy (cfgfile, "/etc/nvm/config.xml");  
 
   while ( (rez=getopt_long(argc,argv,short_options,long_options,&option_index)) != -1) {
     switch (rez){
@@ -247,8 +249,8 @@ int main (int argc, char **argv)
   log->setAdditivity (false);
   log->setAppender(app);
   log->setPriority(cfg->logpriority);
-  
-  log->notice("Start program");
+    
+  log->notice ("Start program (PID %d)", getpid());
   
   //Печатаем конфигурационный файл
   printConfig ();
@@ -257,11 +259,17 @@ int main (int argc, char **argv)
   encserver = new CServerout ();
   encserver->play ();
   
-  rndplayer = new CRandPlayer ();
+  
+  icmanager ();
+  conn1 = new CIncomingConnection ();
+  /*rndplayer = new CRandPlayer ();
   if (rndplayer->initConnectToDB ()) {
     rndplayer->play ();
     g_main_loop_run (mainloop);
-  }
+  }*/
+  
+  //g_main_loop_run (mainloop);
+  
   
   log->debug("Completion of the program and free memory...");
     delete rndplayer;

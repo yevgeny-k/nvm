@@ -434,3 +434,40 @@ matroskamux name=mux ! filesink location=/videotmp/1748.mkv
 15096009070
 15120000000
 
+
+
+
+/// NET TRANSFER
+gst-launch v4l2src ! video/x-raw-yuv,width=320,height=240 ! ffmpegcolorspace ! x264enc bitrate=256  byte-stream=true tune=0x00000004 ! rtph264pay pt=96 ! udpsink host=127.0.0.1 port=5000 sync=false
+gst-launch udpsrc port=5000 caps="application/x-rtp,media=(string)video" ! rtph264depay ! decodebin ! autovideosink
+
+
+
+
+http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-good-plugins/html/gst-plugins-good-plugins-gstrtpbin.html
+
+gst-launch gstrtpbin name=rtpbin \
+v4l2src ! ffmpegcolorspace ! ffenc_h263 ! rtph263ppay ! rtpbin.send_rtp_sink_0 \
+rtpbin.send_rtp_src_0 ! udpsink host=127.0.0.1 port=5000                            \
+rtpbin.send_rtcp_src_0 ! udpsink host=127.0.0.1 port=5001 sync=false async=false    \
+udpsrc port=5005 ! rtpbin.recv_rtcp_sink_0                           
+
+
+gst-launch -v gstrtpbin name=rtpbin                                          \
+udpsrc caps="application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H263-1998" \
+port=5000 ! rtpbin.recv_rtp_sink_0                                \
+rtpbin. ! rtph263pdepay ! ffdec_h263 ! autovideosink                    \
+udpsrc port=5001 ! rtpbin.recv_rtcp_sink_0                               \
+rtpbin.send_rtcp_src_0 ! udpsink host=127.0.0.1 port=5005 sync=false async=false
+
+
+
+gst-launch v4l2src ! video/x-raw-yuv,width=320,height=240 ! ffmpegcolorspace ! x264enc bitrate=256  byte-stream=true tune=0x00000004 ! rtph264pay pt=96 ! udpsink host=127.0.0.1 port=5000 sync=false
+gst-launch udpsrc port=5000 caps="application/x-rtp,media=(string)video" ! gstrtpjitterbuffer ! rtph264depay ! decodebin ! autovideosink
+
+
+
+
+
+
+

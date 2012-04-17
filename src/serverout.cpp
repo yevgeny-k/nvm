@@ -56,7 +56,7 @@ CServerout::CServerout ()
   alphacolor            = gst_element_factory_make ("alphacolor", "alphacolor");
   imagefreeze           = gst_element_factory_make ("imagefreeze", "imagefreeze");
   logoscale             = gst_element_factory_make ("videoscale", "logoscale");
-  logoidentity        = gst_element_factory_make ("identity", "logoidentity");
+  logoidentity          = gst_element_factory_make ("identity", "logoidentity");
   videomixer            = gst_element_factory_make ("videomixer", "videomixer");
   interaudiosrc         = gst_element_factory_make ("interaudiosrc", "interaudiosrc");
   audiointercaps        = gst_element_factory_make ("capsfilter", "audiointercaps");
@@ -94,15 +94,15 @@ CServerout::CServerout ()
      
   // Добавляем элементы на "трубу"
   gst_bin_add_many (GST_BIN (mainpipeline), intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixidentity, NULL);  
-  gst_bin_add_many (GST_BIN (mainpipeline), logofilesrc, pngdec, alphacolor, imagefreeze, logoscale, logoidentity, NULL); 
-  gst_bin_add (GST_BIN (mainpipeline), videomixer);  
+  gst_bin_add_many (GST_BIN (mainpipeline), logofilesrc, pngdec, alphacolor, imagefreeze, logoscale, logoidentity, NULL);
+  gst_bin_add (GST_BIN (mainpipeline), videomixer);
   
   gst_bin_add_many (GST_BIN (mainpipeline), interaudiosrc, audiointercaps, audioqueue, audiointercapsidentity, audioconvertENC, audioresampleENC, faac, NULL);
   gst_bin_add_many (GST_BIN (mainpipeline), ffmpegcolorspaceENC, videorateENC, videoscaleENC, x264enc, NULL);
   
   gst_bin_add_many (GST_BIN (mainpipeline), mpegtsmux, rtpmp2tpay, udpsink, NULL);
   
-    
+   
   //Соединяем входной видеосигнал и видеомикшер
   gst_element_link_many (intervideosrc, videointercaps, videoqueue, intercapsidentity, ffmpegcolorspace, mixcapsin, mixidentity, NULL);
   gst_element_link_pads (mixidentity, "src", videomixer, "sink_%d");

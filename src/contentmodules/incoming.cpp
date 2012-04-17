@@ -11,4 +11,26 @@
 #include <log4cpp/Category.hh>
 #include "../core.hpp"
 #include "ccontentmodule.hpp"
-#include "incomming.hpp"
+#include "incoming.hpp"
+
+extern log4cpp::Category *log;
+extern Scfg *cfg;
+
+CIncomingConnection::CIncomingConnection()
+{
+  log->debug ("Construct incoming connection module");
+
+  log->debug ("Incoming connection module constructed");
+}
+
+CIncomingConnection::~CIncomingConnection()
+{
+
+
+}
+
+void icmanager ()
+{
+
+
+}

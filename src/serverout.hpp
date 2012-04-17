@@ -9,7 +9,7 @@ class CServerout {
     GstElement *videomixer;  
     GstElement *interaudiosrc, *audiointercaps, *audioqueue, *audiointercapsidentity, *audioconvertENC, *audioresampleENC, *faac;
     GstElement *ffmpegcolorspaceENC, *videorateENC, *videoscaleENC, *x264enc;  
-    GstElement *mpegtsmux, *rtpmp2tpay, *udpsink;
+    GstElement *mpegtsmux, *rtpmp2tpay, *udpsink;    
   public:
     CServerout ();
     ~CServerout ();
