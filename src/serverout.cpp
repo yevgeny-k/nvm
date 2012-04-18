@@ -88,13 +88,14 @@ CServerout::CServerout ()
     g_object_set (G_OBJECT (x264enc), "byte-stream", TRUE,
                                       "bitrate", cfg->streamingLOW.videoencbitrate,
                                       "tune", 0x00000004,
-                                      "pass", "pass3",
                                       "profile", "high",
-                                      "speed-preset", "veryslow",
-                                      "bframes", 4,
-                                      "quantizer", 40,
-                                      "ref", 4,
-                                      "analyse", "b8x8",
+                                      "bframes", 2,
+                                      //"analyse", "b8x8",
+                                      //"quantizer", 50,
+                                      //"speed-preset", "slower",
+                                      //"speed-preset", "veryslow",
+                                      //"pass", "pass2",
+                                    //  "ref", 4,
                                       NULL);    
   mpegtsmux             = gst_element_factory_make ("mpegtsmux", "mpegtsmux");  
   rtpmp2tpay            = gst_element_factory_make ("rtpmp2tpay", "rtpmp2tpay");
