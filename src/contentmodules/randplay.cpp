@@ -133,7 +133,7 @@ bool CRandPlayer::initConnectToDB()
 bool CRandPlayer::refreshList()
 {
   char querytmp[300];
-  char q[] = "SELECT fm.uri FROM node as n LEFT JOIN field_data_field_videoclip as v ON (n.nid = v.entity_id) LEFT JOIN file_managed as fm ON (v.field_videoclip_fid = fm.fid) WHERE fm.uri IS NOT NULL ORDER BY created DESC limit %d";  
+  char q[] = "SELECT fm.uri FROM node as n LEFT JOIN field_data_field_videoclip as v ON (n.nid = v.entity_id) LEFT JOIN file_managed as fm ON (v.field_videoclip_fid = fm.fid) WHERE fm.uri IS NOT NULL AND n.status ORDER BY created DESC limit %d";  
  	MYSQL_RES *result;
 	MYSQL_ROW row;
 	int i;
