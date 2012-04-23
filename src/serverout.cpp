@@ -58,6 +58,7 @@ CServerout::CServerout ()
   logoscale             = gst_element_factory_make ("videoscale", "logoscale");
   logoidentity          = gst_element_factory_make ("identity", "logoidentity");
   videomixer            = gst_element_factory_make ("videomixer", "videomixer");
+    g_object_set (G_OBJECT (videomixer), "background", "transparent", NULL);
   interaudiosrc         = gst_element_factory_make ("interaudiosrc", "interaudiosrc");
   audiointercaps        = gst_element_factory_make ("capsfilter", "audiointercaps");
     g_object_set (G_OBJECT (audiointercaps), "caps",  
